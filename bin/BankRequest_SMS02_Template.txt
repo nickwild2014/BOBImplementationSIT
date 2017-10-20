@@ -1,0 +1,6 @@
+Dear Customer,
+
+This is to inform you regarding transaction reference of ${masterReference}-${eventReference} has been successfully completed on ${date}.
+
+Regards,
+Kotak Mahindra Bank Ltd,.

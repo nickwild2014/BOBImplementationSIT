@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FIXML xsi:schemaLocation="http://www.finacle.com/fixml executeFinacleScript.xsd"
+	xmlns="http://www.finacle.com/fixml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<Header>
+		<RequestHeader>
+			<MessageKey>
+				<RequestUUID>${RequestUUID}</RequestUUID>
+				<ServiceRequestId>executeFinacleScript</ServiceRequestId>
+				<ServiceRequestVersion>${ServiceReqVersion}</ServiceRequestVersion>
+				<ChannelId>${ChannelId}</ChannelId>
+			</MessageKey>
+			<RequestMessageInfo>
+				<BankId>${BankId}</BankId>
+				<TimeZone />
+				<EntityId />
+				<EntityType />
+				<ArmCorrelationId />
+				<MessageDateTime>${MessageDateTime}</MessageDateTime>
+			</RequestMessageInfo>
+			<Security>
+				<Token>
+					<PasswordToken>
+						<UserId />
+						<Password />
+					</PasswordToken>
+				</Token>
+				<FICertToken />
+				<RealUserLoginSessionId />
+				<RealUser />
+				<RealUserPwd />
+				<SSOTransferToken />
+			</Security>
+		</RequestHeader>
+	</Header>
+	<Body>
+		<executeFinacleScriPartTrnRecequest>
+			<ExecuteFinacleScriptInputVO>
+				<requestId>Misys_tranExceptionListAPI.scr</requestId>
+			</ExecuteFinacleScriptInputVO>
+			<executeFinacleScript_CustomData>${PartTrnRec}
+			</executeFinacleScript_CustomData>
+		</executeFinacleScriPartTrnRecequest>
+	</Body>
+</FIXML>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FIXML xsi:schemaLocation="http://www.finacle.com/fixml executeFinacleScript.xsd"
+	xmlns="http://www.finacle.com/fixml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<Header>
+		<RequestHeader>
+			<MessageKey>
+				<RequestUUID>${RequestUUID}</RequestUUID>
+				<ServiceRequestId>inquireLimitNode</ServiceRequestId>
+				<ServiceRequestVersion>${ServiceReqVersion}</ServiceRequestVersion>
+				<ChannelId>${ChannelId}</ChannelId>
+				<LanguageId></LanguageId>
+			</MessageKey>
+			<RequestMessageInfo>
+				<BankId>${BankId}</BankId>
+				<TimeZone>GMT+05:30</TimeZone>
+				<EntityId></EntityId>
+				<EntityType></EntityType>
+				<ArmCorrelationId></ArmCorrelationId>
+				<MessageDateTime>${MessageDateTime}</MessageDateTime>
+			</RequestMessageInfo>
+			<Security>
+				<Token>
+					<PasswordToken>
+						<UserId></UserId>
+						<Password></Password>
+					</PasswordToken>
+				</Token>
+				<FICertToken></FICertToken>
+				<RealUserLoginSessionId></RealUserLoginSessionId>
+				<RealUser></RealUser>
+				<RealUserPwd></RealUserPwd>
+				<SSOTransferToken></SSOTransferToken>
+			</Security>
+		</RequestHeader>
+	</Header>
+	<Body>
+		<inquireLimitNodeRequest>
+			<InquireLimitNodeInputVO>
+				<limitPrefix>${limitPrefix}</limitPrefix>
+				<limitSuffix>${limitSuffix}</limitSuffix>
+			</InquireLimitNodeInputVO>
+		</inquireLimitNodeRequest>
+	</Body>
+</FIXML>

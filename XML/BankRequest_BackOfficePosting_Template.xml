@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FIXML xsi:schemaLocation="http://www.finacle.com/fixml executeFinacleScript.xsd"
+	xmlns="http://www.finacle.com/fixml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<Header>
+		<RequestHeader>
+			<MessageKey>
+				<RequestUUID>${requestId}</RequestUUID>
+				<ServiceRequestId>executeFinacleScript</ServiceRequestId>
+				<ServiceRequestVersion>${ServiceReqVersion}</ServiceRequestVersion>
+				<ChannelId>${ChannelId}</ChannelId>
+			</MessageKey>
+			<RequestMessageInfo>
+				<BankId>${BankId}</BankId>
+				<TimeZone>GMT+05:30</TimeZone>
+				<EntityId />
+				<EntityType />
+				<ArmCorrelationId />
+				<MessageDateTime>${dateTime}</MessageDateTime>
+			</RequestMessageInfo>
+			<Security>
+				<Token>
+					<PasswordToken>
+						<UserId />
+						<Password />
+					</PasswordToken>
+				</Token>
+				<FICertToken />
+				<RealUserLoginSessionId />
+				<RealUser />
+				<RealUserPwd />
+				<SSOTransferToken />
+			</Security>
+			<CustomInfo />
+		</RequestHeader>
+	</Header>
+	<Body>
+		<executeFinacleScriptRequest>
+			<ExecuteFinacleScriptInputVO>
+				<requestId>FI_CustCMS.scr</requestId>
+			</ExecuteFinacleScriptInputVO>
+			<executeFinacleScript_CustomData>
+				<REQUEST_ID>TRANPOSTING</REQUEST_ID>
+				${XferTrnDetail}
+			</executeFinacleScript_CustomData>
+		</executeFinacleScriptRequest>
+	</Body>
+</FIXML>

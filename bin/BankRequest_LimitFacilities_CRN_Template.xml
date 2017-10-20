@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FIXML xsi:schemaLocation="http://www.finacle.com/fixml executeFinacleScript.xsd"
+	xmlns="http://www.finacle.com/fixml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<Header>
+		<RequestHeader>
+			<MessageKey>
+				<RequestUUID>${RequestUUID}</RequestUUID>
+				<ServiceRequestId>executeFinacleScript</ServiceRequestId>
+				<ServiceRequestVersion>${ServiceRequestVersion}</ServiceRequestVersion>
+				<ChannelId>${ChannelId}</ChannelId>
+			</MessageKey>
+			<RequestMessageInfo>
+				<BankId>${BankId}</BankId>
+				<TimeZone>GMT+05:30</TimeZone>
+				<EntityId />
+				<EntityType />
+				<ArmCorrelationId />
+				<MessageDateTime>${MessageDateTime}</MessageDateTime>
+			</RequestMessageInfo>
+			<Security>
+				<Token>
+					<PasswordToken>
+						<UserId />
+						<Password />
+					</PasswordToken>
+				</Token>
+				<FICertToken />
+				<RealUserLoginSessionId />
+				<RealUser />
+				<RealUserPwd />
+				<SSOTransferToken />
+			</Security>
+		</RequestHeader>
+	</Header>
+	<Body>
+		<executeFinacleScriptRequest>
+			<ExecuteFinacleScriptInputVO>
+				<requestId>Misys_custLimitInquiryAPI.scr</requestId>
+			</ExecuteFinacleScriptInputVO>
+			<executeFinacleScript_CustomData>
+				<LIMIT_TYPE>${LIMIT_TYPE}</LIMIT_TYPE>
+				<ENTITY_ID>${ENTITY_ID}</ENTITY_ID>
+				<SHARED_LIMITS>${SHARED_LIMITS}</SHARED_LIMITS>
+			</executeFinacleScript_CustomData>
+		</executeFinacleScriptRequest>
+	</Body>
+</FIXML>

@@ -1,0 +1,34 @@
+<?xml version="1.0" standalone="yes"?><ServiceResponse xmlns:m='urn:messages.service.ti.apps.tiplus2.misys.com' xmlns='urn:control.services.tiplus2.misys.com' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
+	<ResponseHeader>
+		<Service>Account</Service>
+		<Operation>AccountSearch</Operation>
+		<Status>${Status}</Status>
+		<Details>
+			<Error>${Error}</Error>
+			<Warning>${Warning}</Warning>
+			<Info>${Info}</Info>
+		</Details>
+		<CorrelationId>${CorrelationId}</CorrelationId>
+	</ResponseHeader>
+	<m:AccountSearchResponse>
+		<m:AccountSearchResults>
+			<m:AccountSearchResult>
+				<m:Branch>${SolId}</m:Branch>
+				<m:BranchNumber>${BranchNumber}</m:BranchNumber>
+				<m:Customer>${CustId}</m:Customer>
+				<m:CustomerNumber>${CustomerNumber}</m:CustomerNumber>
+				<m:SystemParameter>${SystemParameter}</m:SystemParameter>
+				<m:ChargeCode>${ChargeCode}</m:ChargeCode>
+				<m:CategoryCode>${CategoryCode}</m:CategoryCode>
+				<m:AccountType>${SchmType}</m:AccountType>
+				<m:Currency>${AcctCrncy}</m:Currency>
+				<m:OtherCurrency>${OtherCurrency}</m:OtherCurrency>
+				<m:BackOfficeAccount>${AccountNumber}</m:BackOfficeAccount>
+				<m:ShortName>${Short_Name}</m:ShortName>
+				<m:ExternalAccount>${ExternalAccount}</m:ExternalAccount>
+				<m:IBAN>${IBAN_Number}</m:IBAN>
+			</m:AccountSearchResult>
+		</m:AccountSearchResults>
+		<m:AdditionalResults>${AdditionalResults}</m:AdditionalResults>
+	</m:AccountSearchResponse>
+</ServiceResponse>

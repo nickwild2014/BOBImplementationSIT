@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FIXML xsi:schemaLocation="http://www.finacle.com/fixml executeFinacleScript.xsd"
+	xmlns="http://www.finacle.com/fixml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<Header>
+		<RequestHeader>
+			<MessageKey>
+				<RequestUUID>${RequestUUID}</RequestUUID>
+				<ServiceRequestId>${ServiceRequestId}</ServiceRequestId>
+				<ServiceRequestVersion>${ServiceReqVersion}</ServiceRequestVersion>
+				<ChannelId>${ChannelId}</ChannelId>
+				<LanguageId></LanguageId>
+			</MessageKey>
+			<RequestMessageInfo>
+				<BankId>${BankId}</BankId>
+				<TimeZone>GMT+05:30</TimeZone>
+				<EntityId></EntityId>
+				<EntityType></EntityType>
+				<ArmCorrelationId></ArmCorrelationId>
+				<MessageDateTime>${MessageDateTime}</MessageDateTime>
+			</RequestMessageInfo>
+			<Security>
+				<Token>
+					<PasswordToken>
+						<UserId></UserId>
+						<Password></Password>
+					</PasswordToken>
+				</Token>
+				<FICertToken></FICertToken>
+				<RealUserLoginSessionId></RealUserLoginSessionId>
+				<RealUser></RealUser>
+				<RealUserPwd></RealUserPwd>
+				<SSOTransferToken></SSOTransferToken>
+			</Security>
+		</RequestHeader>
+	</Header>
+	<Body>
+		<executeFinacleScriptRequest>
+			<ExecuteFinacleScriptInputVO>
+				<requestId>Misys_UML_ExposureAPI.scr</requestId>
+			</ExecuteFinacleScriptInputVO>
+			<executeFinacleScript_CustomData>
+				<limitPrefix>${limitPrefix}</limitPrefix>
+				<limitSuffix>${limitSuffix}</limitSuffix>
+				<UML isMultirec="Y">
+					<amt>${amt}</amt>
+					<ccyCode>${ccyCode}</ccyCode>
+					<srlNum>1</srlNum>
+				</UML>
+			</executeFinacleScript_CustomData>
+		</executeFinacleScriptRequest>
+	</Body>
+</FIXML>

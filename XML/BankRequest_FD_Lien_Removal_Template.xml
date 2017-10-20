@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FIXML xsi:schemaLocation="http://www.finacle.com/fixml executeFinacleScript.xsd"
+	xmlns="http://www.finacle.com/fixml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<Header>
+		<RequestHeader>
+			<MessageKey>
+				<RequestUUID>${requestId}</RequestUUID>
+				<ServiceRequestId>executeFinacleScript</ServiceRequestId>
+				<ServiceRequestVersion>${ServiceReqVersion}</ServiceRequestVersion>
+				<ChannelId>${ChannelId}</ChannelId>
+			</MessageKey>
+			<RequestMessageInfo>
+				<BankId>${BankId}</BankId>
+				<TimeZone>GMT+05:30</TimeZone>
+				<EntityId />
+				<EntityType />
+				<ArmCorrelationId />
+				<MessageDateTime>${dateTime}</MessageDateTime>
+			</RequestMessageInfo>
+			<Security>
+				<Token>
+					<PasswordToken>
+						<UserId />
+						<Password />
+					</PasswordToken>
+				</Token>
+				<FICertToken />
+				<RealUserLoginSessionId />
+				<RealUser />
+				<RealUserPwd />
+				<SSOTransferToken />
+			</Security>
+		</RequestHeader>
+	</Header>
+	<Body>
+		<executeFinacleScriptRequest>
+			<ExecuteFinacleScriptInputVO>
+				<requestId>Misys_LienInqUpdAPI.scr</requestId>
+			</ExecuteFinacleScriptInputVO>
+			<executeFinacleScript_CustomData>
+				<FuncCode>R</FuncCode>
+				<AcctId>${accountNumber}</AcctId>
+				<DealRefNo>${DealRefNo}</DealRefNo>
+				<TranAmt>${TranAmt}</TranAmt>
+			</executeFinacleScript_CustomData>
+		</executeFinacleScriptRequest>
+	</Body>
+</FIXML>

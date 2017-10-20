@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ServiceRequest xmlns:ns2="urn:messages.service.ti.apps.tiplus2.misys.com" xmlns="urn:control.services.tiplus2.misys.com" xmlns:ns3="urn:common.service.ti.apps.tiplus2.misys.com">
+	<ResponseHeader>
+		<Service>Health</Service>
+		<Operation>Check</Operation>
+		<Credentials>
+			<Name>SUPERVISOR</Name>
+		</Credentials>
+		<ReplyFormat>FULL</ReplyFormat>
+		<TargetSystem>EXTSYS</TargetSystem>
+		<SourceSystem>ZONE1</SourceSystem>
+		<NoRepair>Y</NoRepair>
+		<NoOverride>Y</NoOverride>
+		<TransactionControl>NONE</TransactionControl>
+	</ResponseHeader>
+	<HealthRequest>
+		<DBConnection>${dbConnection}</DBConnection>
+		<MQSwiftOutConnection>${mqSwiftOutConnection}</MQSwiftOutConnection>
+		<MQSwiftInConnection>${mqSwiftInConnection}</MQSwiftInConnection>
+		<MQSfmsOutConnection>${mqSfmsOutConnection}</MQSfmsOutConnection>
+		<MQSfmsInConnection>${mqSfmsInConnection}</MQSfmsInConnection>
+	</HealthRequest>
+</ServiceRequest>

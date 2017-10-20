@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FIXML xsi:schemaLocation="http://www.finacle.com/fixml AcctLienInq.xsd" xmlns="http://www.finacle.com/fixml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<Header>
+		<RequestHeader>
+			<MessageKey>
+				<RequestUUID>${requestId}</RequestUUID>
+				<ServiceRequestId>AcctLienInq</ServiceRequestId>
+				<ServiceRequestVersion>${ServiceReqVersion}</ServiceRequestVersion>
+				<ChannelId>${ChannelId}</ChannelId>
+			</MessageKey>
+			<RequestMessageInfo>
+				<BankId>${BankId}</BankId>
+				<TimeZone>GMT+05:30</TimeZone>
+				<EntityId />
+				<EntityType />
+				<ArmCorrelationId />
+				<MessageDateTime>${dateTime}</MessageDateTime>
+			</RequestMessageInfo>
+			<Security>
+				<Token>
+					<PasswordToken>
+						<UserId />
+						<Password />
+					</PasswordToken>
+				</Token>
+				<FICertToken />
+				<RealUserLoginSessionId />
+				<RealUser />
+				<RealUserPwd />
+				<SSOTransferToken />
+			</Security>
+		</RequestHeader>
+	</Header>
+	<Body>
+		<AcctLienInqRequest>
+			<AcctLienInqRq>
+				<AcctId>
+					<AcctId>${accountNumber}</AcctId>
+				</AcctId>
+				<ModuleType>${ModuleType}</ModuleType>
+			</AcctLienInqRq>
+		</AcctLienInqRequest>
+	</Body>
+</FIXML>

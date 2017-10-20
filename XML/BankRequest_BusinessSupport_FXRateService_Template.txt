@@ -1,0 +1,1 @@
+firstCurr=${firstCurr}&secondCurr=${secondCurr}&Amount=${Amount}&valueDate=${valueDate}&direction=${direction}&nostroFrom=${nostroFrom}&nostroRef=${nostroRef}&branchCode=${branchCode}&rate=${rate}&inputter=${inputter}&pwd=${pwd}&CRN=${CRN}&gid=${gid}&msg=${msg}&ls_sessionid=${ls_sessionid}&RFQ=${RFQ}

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NCIF xmlns:xsi=' http://www.w3.org/2001/XMLSchema-instance'>
+	<Inparam>
+		<P_FULL_NAME>${P_FULL_NAME}</P_FULL_NAME>
+	</Inparam>
+</NCIF>

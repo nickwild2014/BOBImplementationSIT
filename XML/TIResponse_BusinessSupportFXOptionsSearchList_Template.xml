@@ -1,0 +1,12 @@
+<m:FXOptionsResult>
+	<m:FXContractReference>${FXContractReference}</m:FXContractReference>
+	<m:Customer>${Customer}</m:Customer>
+	<m:DealBranch>${DealBranch}</m:DealBranch>
+	<m:AvailablePurchaseAmount>${AvailablePurchaseAmount}</m:AvailablePurchaseAmount>
+	<m:AvailablePurchaseCurrency>${AvailablePurchaseCurrency}</m:AvailablePurchaseCurrency>
+	<m:AvailableSaleAmount>${AvailableSaleAmount}</m:AvailableSaleAmount>
+	<m:AvailableSaleCurrency>${AvailableSaleCurrency}</m:AvailableSaleCurrency>
+	<m:OptionRate>${OptionRate}</m:OptionRate>
+	<m:ValidFromDate>${ValidFromDate}</m:ValidFromDate>
+	<m:ValidToDate>${ValidToDate}</m:ValidToDate>
+</m:FXOptionsResult>

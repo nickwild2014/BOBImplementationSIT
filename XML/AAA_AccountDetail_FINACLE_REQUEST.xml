@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FIXML xsi:schemaLocation="http://www.finacle.com/fixml executeFinacleScript.xsd"
+	xmlns="http://www.finacle.com/fixml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<Header>
+		<RequestHeader>
+			<MessageKey>
+				<RequestUUID>${requestId}</RequestUUID>
+				<ServiceRequestId>executeFinacleScript</ServiceRequestId>
+				<ServiceRequestVersion>${ServiceReqVersion}</ServiceRequestVersion>
+				<ChannelId>${ChannelId}</ChannelId>
+				<LanguageId></LanguageId>
+			</MessageKey>
+			<RequestMessageInfo>
+				<BankId>${BankId}</BankId>
+				<TimeZone>GMT+05:30</TimeZone>
+				<EntityId></EntityId>
+				<EntityType></EntityType>
+				<ArmCorrelationId></ArmCorrelationId>
+				<MessageDateTime>${dateTime}</MessageDateTime>
+			</RequestMessageInfo>
+			<Security>
+				<Token>
+					<PasswordToken>
+						<UserId></UserId>
+						<Password></Password>
+					</PasswordToken>
+				</Token>
+				<FICertToken></FICertToken>
+				<RealUserLoginSessionId></RealUserLoginSessionId>
+				<RealUser></RealUser>
+				<RealUserPwd></RealUserPwd>
+				<SSOTransferToken></SSOTransferToken>
+			</Security>
+		</RequestHeader>
+	</Header>
+	<Body>
+		<executeFinacleScriptRequest>
+			<ExecuteFinacleScriptInputVO>
+				<requestId>FI_CustTF.scr</requestId>
+			</ExecuteFinacleScriptInputVO>
+			<executeFinacleScript_CustomData>
+				<ACCTNO>${ACCTNO}</ACCTNO>
+				<REQUEST_ID>ACCTINQ</REQUEST_ID>
+			</executeFinacleScript_CustomData>
+		</executeFinacleScriptRequest>
+	</Body>
+</FIXML>

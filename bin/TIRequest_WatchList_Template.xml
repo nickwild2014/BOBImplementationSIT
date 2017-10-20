@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns4:ServiceRequest xmlns:ns4="urn:control.services.tiplus2.misys.com"
+	xmlns="urn:common.service.ti.apps.tiplus2.misys.com" xmlns:ns2="urn:messages.service.ti.apps.tiplus2.misys.com"
+	xmlns:ns3="urn:custom.service.ti.apps.tiplus2.misys.com">
+	<ns4:RequestHeader>
+		<ns4:Service>TI</ns4:Service>
+		<ns4:Operation>TFWLCRSP</ns4:Operation>
+		<ns4:Credentials>
+			<ns4:Name>${Name}</ns4:Name>
+		</ns4:Credentials>
+		<ns4:ReplyFormat>FULL</ns4:ReplyFormat>
+		<ns4:NoRepair>Y</ns4:NoRepair>
+		<ns4:NoOverride>Y</ns4:NoOverride>
+		<ns4:CorrelationId>${CorrelationId}</ns4:CorrelationId>
+		<ns4:TransactionControl>NONE</ns4:TransactionControl>
+	</ns4:RequestHeader>
+	<ns2:TFWLCRSP>
+		<ns2:Context>
+			<Branch>${Branch}</Branch>
+			<OurReference>${OurReference}</OurReference>
+			<TheirReference>${TheirReference}</TheirReference>
+			<BehalfOfBranch>${BehalfOfBranch}</BehalfOfBranch>
+		</ns2:Context>
+		<ns2:MasterRef>${MasterRef}</ns2:MasterRef>
+		<ns2:EventReference>${EventReference}</ns2:EventReference>
+		<ns2:WatchListCheckerRef>${WatchListCheckerRef}
+		</ns2:WatchListCheckerRef>
+		<ns2:Status>${Status}</ns2:Status>
+		<ns2:FailedFields>${FailedFields}</ns2:FailedFields>
+	</ns2:TFWLCRSP>
+</ns4:ServiceRequest>

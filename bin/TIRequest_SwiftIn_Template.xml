@@ -1,0 +1,20 @@
+<?xml version="1.0" standalone="yes"?>
+<ServiceRequest xmlns:m='urn:messages.service.ti.apps.tiplus2.misys.com'
+	xmlns='urn:control.services.tiplus2.misys.com' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
+	<RequestHeader>
+		<Service>TI</Service>
+		<Operation>SwiftIn</Operation>
+		<Credentials>
+			<Name>${name}</Name>
+		</Credentials>
+		<ReplyFormat>FULL</ReplyFormat>
+		<NoRepair>Y</NoRepair>
+		<NoOverride>Y</NoOverride>
+		<CorrelationId>${correlationId}</CorrelationId>
+		<TransactionControl>NONE</TransactionControl>
+	</RequestHeader>
+	<m:SwiftIn>
+		<m:Acknowledged>${acknowledged}</m:Acknowledged>
+		<m:Message>${message}</m:Message>
+	</m:SwiftIn>
+</ServiceRequest>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ServiceResponse xmlns="urn:control.services.tiplus2.misys.com"
+	xmlns:m="urn:messages.service.ti.apps.tiplus2.misys.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<ResponseHeader>
+		<Service>Account</Service>
+		<Operation>AvailBal</Operation>
+		<Status>${status}</Status>
+	</ResponseHeader>
+	<m:AvailBalResponse>
+		<m:Balance>${balance}</m:Balance>
+		<m:Negative>${negative}</m:Negative>
+		<m:Applies>Y</m:Applies>
+		<m:Blocked>${blocked}</m:Blocked>
+		<m:CheckedInBackOffice>Y</m:CheckedInBackOffice>
+		<m:ErrorMessage>${errorMessage}</m:ErrorMessage>
+		<m:ErrorOrWarning>${errorOrWarning}</m:ErrorOrWarning>
+	</m:AvailBalResponse>
+</ServiceResponse>

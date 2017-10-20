@@ -1,0 +1,19 @@
+<?xml version="1.0" standalone="yes"?>
+<ServiceResponse xmlns:m='urn:messages.service.ti.apps.tiplus2.misys.com'
+	xmlns='urn:control.services.tiplus2.misys.com' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
+	<ResponseHeader>
+		<Service>BusinessSupport</Service>
+		<Operation>FXOptionsSearch</Operation>
+		<Status>${status}</Status>
+		<Details>
+			<Error>${Error}</Error>
+			<Warning>${Warning}</Warning>
+			<Info>${Info}</Info>
+		</Details>
+		<CorrelationId>${CorrelationId}</CorrelationId>
+	</ResponseHeader>
+	<m:FXOptionsSearchResponse>
+		<m:FXOptionsResults>${FxOptionsResult}</m:FXOptionsResults>
+		<m:AdditionalResults>false</m:AdditionalResults>
+	</m:FXOptionsSearchResponse>
+</ServiceResponse>

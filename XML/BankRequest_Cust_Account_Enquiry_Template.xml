@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FIXML xsi:schemaLocation="http://www.finacle.com/fixml CustAcctInq.xsd" xmlns="http://www.finacle.com/fixml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<Header>
+		<RequestHeader>
+			<MessageKey>
+				<RequestUUID>${requestId}</RequestUUID>
+				<ServiceRequestId>CustAcctInq</ServiceRequestId>
+				<ServiceRequestVersion>${ServiceReqVersion}</ServiceRequestVersion>
+				<ChannelId>${ChannelId}</ChannelId>
+			</MessageKey>
+			<RequestMessageInfo>
+				<BankId>${BankId}</BankId>
+				<TimeZone>GMT+05:30</TimeZone>
+				<EntityId />
+				<EntityType />
+				<ArmCorrelationId />
+				<MessageDateTime>${dateTime}</MessageDateTime>
+				<ExceptionOverrideFlag/>
+				<SrvInvocmodeOverrideFlag/>
+			</RequestMessageInfo>
+			<Security>
+				<Token>
+					<PasswordToken>
+						<UserId />
+						<Password />
+					</PasswordToken>
+				</Token>
+				<FICertToken />
+				<RealUserLoginSessionId />
+				<RealUser />
+				<RealUserPwd />
+				<SSOTransferToken />
+			</Security>
+		</RequestHeader>
+	</Header>
+	<Body>
+		<CustAcctInqRequest>
+			<CustAcctInqRq>
+				<RecCtrlIn>
+					<MaxRec>${MaxRec}</MaxRec>
+				</RecCtrlIn>
+				<CustId>${CustId}</CustId>
+				<CustType>${CustType}</CustType>
+			</CustAcctInqRq>
+		</CustAcctInqRequest>
+	</Body>
+</FIXML>
