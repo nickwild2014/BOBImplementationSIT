@@ -77,11 +77,15 @@ public class SWIFTSwiftOutAdaptee extends ServiceProcessorUtil implements Adapte
 
 	public static void main(String[] args) throws Exception {
 
+		//PostingStagingAdaptee anAdaptee = new PostingStagingAdaptee();
+		//boolean result = anAdaptee.process();
+		//System.out.println(result);
+
+		
 		SWIFTSwiftOutAdaptee anSwiftOut = new SWIFTSwiftOutAdaptee();
 
-		// String inputXML = ThemeBridgeUtil
-		// .readFile("D:\\_Prasath\\Filezilla\\task\\task-sfms-e-BG\\760SWIFTOUT-SIT.xml");
-		String inputXML = ThemeBridgeUtil.readFile("C:\\Users\\KXT51472.KBANK\\Desktop\\SwiftTransferLC.xml");
+		String inputXML = ThemeBridgeUtil.readFile("C:\\Users\\subhash\\Desktop\\SwiftOutTIRequest.txt");
+		System.out.println(inputXML);
 		anSwiftOut.process(inputXML);
 
 		// Map<String, String> test = getSwiftDetails("23171");

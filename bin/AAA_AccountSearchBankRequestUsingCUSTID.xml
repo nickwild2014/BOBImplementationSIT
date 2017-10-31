@@ -4,33 +4,33 @@
 	<Header>
 		<RequestHeader>
 			<MessageKey>
-				<RequestUUID>${requestId}</RequestUUID>
+				<RequestUUID>Req_1507616995013</RequestUUID>
 				<ServiceRequestId>executeFinacleScript</ServiceRequestId>
-				<ServiceRequestVersion>${ServiceReqVersion}</ServiceRequestVersion>
-				<ChannelId>${ChannelId}</ChannelId>
+				<ServiceRequestVersion>10.2</ServiceRequestVersion>
+				<ChannelId>COR</ChannelId>
+				<LanguageId></LanguageId>
 			</MessageKey>
 			<RequestMessageInfo>
-				<BankId>${BankId}</BankId>
-				<TimeZone>GMT+05:30</TimeZone>
-				<EntityId />
-				<EntityType />
-				<ArmCorrelationId />
-				<MessageDateTime>${dateTime}</MessageDateTime>
+				<BankId></BankId>
+				<TimeZone></TimeZone>
+				<EntityId></EntityId>
+				<EntityType></EntityType>
+				<ArmCorrelationId></ArmCorrelationId>
+				<MessageDateTime>2017-09-10T11:59:55.013</MessageDateTime>
 			</RequestMessageInfo>
 			<Security>
 				<Token>
 					<PasswordToken>
-						<UserId />
-						<Password />
+						<UserId></UserId>
+						<Password></Password>
 					</PasswordToken>
 				</Token>
-				<FICertToken />
-				<RealUserLoginSessionId />
-				<RealUser />
-				<RealUserPwd />
-				<SSOTransferToken />
+				<FICertToken></FICertToken>
+				<RealUserLoginSessionId></RealUserLoginSessionId>
+				<RealUser></RealUser>
+				<RealUserPwd></RealUserPwd>
+				<SSOTransferToken></SSOTransferToken>
 			</Security>
-			<CustomInfo />
 		</RequestHeader>
 	</Header>
 	<Body>
@@ -39,8 +39,8 @@
 				<requestId>FI_CustTF.scr</requestId>
 			</ExecuteFinacleScriptInputVO>
 			<executeFinacleScript_CustomData>
-				<REQUEST_ID>ACCVERIFY</REQUEST_ID>
-				${PartTrnRec}
+				<CUSTID>${CUSTID}</CUSTID>
+				<REQUEST_ID>ACCTINQ</REQUEST_ID>
 			</executeFinacleScript_CustomData>
 		</executeFinacleScriptRequest>
 	</Body>

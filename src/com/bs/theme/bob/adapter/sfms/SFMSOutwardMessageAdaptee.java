@@ -10,7 +10,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.bs.theme.bob.adapter.util.SWIFTMessageUtil;
-import com.bs.theme.bob.digitalsign.SignarSignature;
 import com.bs.themebridge.listener.mq.MQMessageManager;
 import com.bs.themebridge.swift.model.ThemeSwiftModel;
 import com.bs.themebridge.swift.parser.ThemeSwiftParser;
@@ -156,14 +155,14 @@ public class SFMSOutwardMessageAdaptee {
 
 			// V ? COV message ?
 			/** DIGITAL SIGNATURE **/
-			String isSignatureRequired = ConfigurationUtil.getValueFromKey("DigitalSignature");
-			logger.debug("isSignatureRequired : " + isSignatureRequired);
-			if (isSignatureRequired.equalsIgnoreCase("YES")) {
-				logger.debug("YESYES");
-				// sFMSMessage =
-				// DigitalSignature.signSFMSMessage(sFMSMessage);
-				sFMSMessage = SignarSignature.signSFMSMessage(sFMSMessage);
-			}
+			//String isSignatureRequired = ConfigurationUtil.getValueFromKey("DigitalSignature");
+			//logger.debug("isSignatureRequired : " + isSignatureRequired);
+//			if (isSignatureRequired.equalsIgnoreCase("YES")) {
+//				logger.debug("YESYES");
+//				// sFMSMessage =
+//				// DigitalSignature.signSFMSMessage(sFMSMessage);
+//				sFMSMessage = SignarSignature.signSFMSMessage(sFMSMessage);
+//			}
 			// sFMSMessage = SignarSignature.signSFMSMessage(sFMSMessage);
 
 		} catch (Exception e) {

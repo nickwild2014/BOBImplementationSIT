@@ -4,6 +4,7 @@ import static com.bs.theme.bob.template.util.KotakConstant.OPERATION_SFMS_OUT;
 import static com.bs.theme.bob.template.util.KotakConstant.OPERATION_SWIFT_OUT;
 import static com.bs.theme.bob.template.util.KotakConstant.SERVICE_SWIFT;
 
+import java.io.DataInputStream;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
@@ -47,6 +48,12 @@ import com.bs.themebridge.util.ThemeBridgeUtil;
 import com.bs.themebridge.xpath.RequestHeaderXpath;
 import com.bs.themebridge.xpath.SWIFTSwiftOutXpath;
 import com.bs.themebridge.xpath.XPathParsing;
+import com.ibm.mq.MQC;
+import com.ibm.mq.MQEnvironment;
+import com.ibm.mq.MQMessage;
+import com.ibm.mq.MQPutMessageOptions;
+import com.ibm.mq.MQQueue;
+import com.ibm.mq.MQQueueManager;
 import com.misys.tiplus2.apps.ti.service.messages.SWOPF;
 import com.misys.tiplus2.apps.ti.service.messages.SWOPF.Messages;
 
@@ -83,6 +90,125 @@ public class SWIFTSwiftOutAdapteeStaging {
 	private String billDescMsg = "No bill reference number available. ";
 
 	public SWIFTSwiftOutAdapteeStaging() {
+	}
+	
+	int port = ThemeBridgeUtil.StringtoInt(ConfigurationUtil.getValueFromKey("SFMS_Port"));
+	String hostname = ConfigurationUtil.getValueFromKey("SFMS_HOSTNAME");
+	String channel = ConfigurationUtil.getValueFromKey("SFMS_Channel");
+	String qManager = ConfigurationUtil.getValueFromKey("SFMS_Manager");
+
+	public static Boolean writeSFMSMQMessage(String inputMessage,int port,String hostname,String channel,String qManager) {
+		MQQueueManager _queueManager = null;
+
+		// int port = 1415;
+		// String hostname = "10.1.41.41";
+		// String channel = "SFMS.TO.LCBG";
+		// String qManager = "IDFBBRQM";
+		// String inputQName = "APP.INCOMING";
+		// String outputQName = "SFMS.INCOMING";
+		String errormsg = "", swiftResp = "";
+		Boolean status = null;
+
+		logger.info("Swift out Queue write process");
+		try {
+
+			
+			// String inputQName = ConfigurationUtil
+			// .getValueFromKey("SFMS_IN_QUEUE");
+			String outputQName = ConfigurationUtil.getValueFromKey("SFMS_OUT_QUEUE");
+
+			logger.info("MQ connect started/////////// hostname\t\t:" + hostname);
+			logger.info("MQ connect started/////////// channel\t\t:" + channel);
+			logger.info("MQ connect started/////////// Port\t\t:" + port);
+			logger.info("MQ connect started/////////// qManager\t\t:" + qManager);
+
+			MQEnvironment.hostname = hostname;
+			MQEnvironment.channel = channel;
+			MQEnvironment.port = port;
+
+			logger.info("Swift out Queue manager connection check process");
+			_queueManager = new MQQueueManager(qManager);
+
+			logger.info("MQ connect started///////////");
+			logger.info("MQ connect started///////////_queueManager:" + _queueManager);
+
+			int lineNum = 0;
+			int openOptions = MQC.MQOO_OUTPUT + MQC.MQOO_FAIL_IF_QUIESCING;
+			try {
+
+				// default q manager // no dynamic q name// no alternate user id
+				MQQueue queue = _queueManager.accessQueue(outputQName, openOptions, null, null, null);
+				logger.info("MQ connect started///////////_queueManager:" + queue);
+				DataInputStream input = new DataInputStream(System.in);
+				logger.info("MQ connect started///////////_queueManager:" + _queueManager);
+
+				logger.info("MQWrite v1.0 connected");
+				logger.info("and ready for input, terminate with ^Z\n\n");
+
+				// Define a simple MQ message, and write some text in UTF
+				// format..
+				MQMessage sendmsg = new MQMessage();
+				// sendmsg.format = MQC.MQFMT_STRING;
+				// sendmsg.feedback = MQC.MQFB_NONE;
+				// sendmsg.messageType = MQC.MQMT_DATAGRAM;
+				// sendmsg.replyToQueueName = "ROGER.QUEUE";
+				// sendmsg.replyToQueueManagerName = qManager;
+
+				MQPutMessageOptions pmo = new MQPutMessageOptions(); // accept
+																		// the
+				logger.info("MQ connect started/////////// hostname\t\t:" + hostname);
+				logger.info("MQ connect started/////////// channel\t\t:" + channel);
+				logger.info("MQ connect started/////////// Port\t\t:" + port);
+				logger.info("MQ connect started/////////// qManager\t\t:" + qManager);
+
+				// as MQPMO_DEFAULT constant
+
+				String line = inputMessage;
+				sendmsg.clearMessage();
+				// sendmsg.messageId = MQC.MQMI_NONE;
+				// sendmsg.correlationId = MQC.MQCI_NONE;
+				sendmsg.writeString(line);
+
+				// put the message on the queue
+
+				queue.put(sendmsg, pmo);
+				logger.info(++lineNum + ": " + line);
+
+				queue.close();
+				_queueManager.disconnect();
+				logger.info("MQ connection Disconnted!!!!!!!!!!!!!");
+				status = true;
+			} catch (com.ibm.mq.MQException mqex) {
+				mqex.printStackTrace();
+				logger.info("MQException______________" + mqex);
+				status = false;
+				errormsg = mqex.getMessage();
+				swiftResp = status + "|" + errormsg;
+			} catch (java.io.IOException ioex) {
+				ioex.printStackTrace();
+				logger.info("An MQ IO error occurred : " + ioex);
+				status = false;
+				errormsg = ioex.getMessage();
+				swiftResp = status + "|" + errormsg;
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				logger.info("An MQ IO error occurred : " + e);
+				status = false;
+				errormsg = "MQ Server Connection Error";
+				swiftResp = status + "|" + errormsg;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.info("An MQ IO error occurred : " + e);
+			status = false;
+			errormsg = "MQ Server Connection Error";
+			swiftResp = status + "|" + errormsg;
+		}
+
+		logger.info("MQ connect Ended \nswiftResp:>" + swiftResp);
+		return status;
+
 	}
 
 	/**
@@ -274,9 +400,17 @@ public class SWIFTSwiftOutAdapteeStaging {
 									+ masterReferenceNum;
 						}
 					}
-					String sfmsOutMQName = ConfigurationUtil.getValueFromKey("SfmsOutMQName");
-					String sfmsOutMQJNDIName = ConfigurationUtil.getValueFromKey("SfmsOutMQJndiName");
-					mqueueStatus = MQMessageManager.pushMqMessage(sfmsOutMQJNDIName, sfmsOutMQName, sfmsOutMsg);
+					//String sfmsOutMQName = ConfigurationUtil.getValueFromKey("SfmsOutMQName");
+					//String sfmsOutMQJNDIName = ConfigurationUtil.getValueFromKey("SfmsOutMQJndiName");
+					//mqueueStatus = MQMessageManager.pushMqMessage(sfmsOutMQJNDIName, sfmsOutMQName, sfmsOutMsg);
+					
+					int port = ThemeBridgeUtil.StringtoInt(ConfigurationUtil.getValueFromKey("SFMS_Port"));
+					String hostname = ConfigurationUtil.getValueFromKey("SFMS_HOSTNAME");
+					String channel = ConfigurationUtil.getValueFromKey("SFMS_Channel");
+					String qManager = ConfigurationUtil.getValueFromKey("SFMS_Manager");
+
+					mqueueStatus = writeSFMSMQMessage(sfmsOutMsg, port, hostname, channel, qManager);
+
 					logger.debug("Swiftout(SFMS) QueuePushingStatus : " + mqueueStatus);
 
 					/** Advice copy **/
@@ -304,13 +438,20 @@ public class SWIFTSwiftOutAdapteeStaging {
 									+ masterReferenceNum;
 						}
 					}
-					String swiftOutMQName = ConfigurationUtil.getValueFromKey("SwiftOutMQName");
-					String swiftOutMQJndiName = ConfigurationUtil.getValueFromKey("SwiftOutMQJndiName");
-					/** SwiftOut encryption on 04-03-2016 **/
-					// String encryptSwiftMsg =
-					// SwiftOutEncryption.getSwiftEncryptedMsg(formatSwiftMsg);
-					// encryptSwiftMsg);
-					mqueueStatus = MQMessageManager.pushMqMessage(swiftOutMQJndiName, swiftOutMQName, formatSwiftMsg);
+//					String swiftOutMQName = ConfigurationUtil.getValueFromKey("SwiftOutMQName");
+//					String swiftOutMQJndiName = ConfigurationUtil.getValueFromKey("SwiftOutMQJndiName");
+//					/** SwiftOut encryption on 04-03-2016 **/
+//					// String encryptSwiftMsg =
+//					// SwiftOutEncryption.getSwiftEncryptedMsg(formatSwiftMsg);
+//					// encryptSwiftMsg);
+//					mqueueStatus = MQMessageManager.pushMqMessage(swiftOutMQJndiName, swiftOutMQName, formatSwiftMsg);
+					
+					int port = ThemeBridgeUtil.StringtoInt(ConfigurationUtil.getValueFromKey("SWIFT_Port"));
+					String hostname = ConfigurationUtil.getValueFromKey("SWIFT_HOSTNAME");
+					String channel = ConfigurationUtil.getValueFromKey("SWIFT_Channel");
+					String qManager = ConfigurationUtil.getValueFromKey("SWIFT_Manager");
+					mqueueStatus = writeSFMSMQMessage(sfmsOutMsg, port, hostname, channel, qManager);
+
 					logger.debug("Swiftout(SWIFT) QueuePushingStatus : " + mqueueStatus);
 					if (swiftAllMessages.isEmpty())
 						swiftAllMessages = formatSwiftMsg;
@@ -581,8 +722,8 @@ public class SWIFTSwiftOutAdapteeStaging {
 	}
 
 	/**
-	 * To get Master reference number, DO NOT USE. But Superb! If master
-	 * reference length is 16 character only this method will work.
+	 * To get Master reference number, DO NOT USE. But Superb! If master reference
+	 * length is 16 character only this method will work.
 	 * 
 	 * @param swiftOutmsg
 	 * @return
@@ -608,8 +749,8 @@ public class SWIFTSwiftOutAdapteeStaging {
 	}
 
 	/**
-	 * To get Master reference number, DO NOT USE. But Superb!. If master
-	 * reference length is 16 character only this method will work.
+	 * To get Master reference number, DO NOT USE. But Superb!. If master reference
+	 * length is 16 character only this method will work.
 	 * 
 	 * @param swiftMessage
 	 * @return
@@ -667,53 +808,16 @@ public class SWIFTSwiftOutAdapteeStaging {
 		SWIFTSwiftOutAdapteeStaging swiftObj = new SWIFTSwiftOutAdapteeStaging();
 		// logger.debug(swiftObj.getTIResponse(" | FAILED"));
 
-		// String SfmsOutMsg =
-		// ThemeBridgeUtil.readFile("C:\\Users\\KXT51472\\Desktop\\SFMSMESSAGE.txt");
-		// C:\Users\KXT51472\Desktop\SFMSMESSAGE.txt
-		// getswiftMSGType("", "16017");
+		// String prdType = "IDC";
+		// if (!prdType.equals("IDC") && !prdType.equals("ODC")) {
+		// System.out.println("if " + prdType);
+		// } else {
+		// System.out.println("else " + prdType);
+		// }
 
-		// String SfmsOutMs = DigitalSignature.signSFMSMessage(SfmsOutMsg);
-		// logger.debug("ss \n" + SfmsOutMs);
-
-		// Map<String, String> eventRefMap = getEventRefSerialNumber("27254");
-
-		// logger.debug(eventRefMap.get("Code"));
-		// logger.debug(eventRefMap.get("Serial"));
-
-		// logger.debug(getBillRefNumber("0463OCF170200061","CRE",
-		// "001"));
-
-		// String swiftTiReq =
-		// ThemeBridgeUtil.readFile("C:\\Users\\KXT51472\\Desktop\\Garbage\\sfms-321\\sfmsout-1.xml");
-		// String swiftTiReq = ThemeBridgeUtil
-		// .readFile("C:\\Users\\KXT51472\\Downloads\\SFMS\\SFMSOUT
-		// message20161226.txt");
-
-		// String swiftTiReq =
-		// ThemeBridgeUtil.readFile("D:\\_Prasath\\00_TASK\\SFMSCODESWIFT\\tiresquest-modified.xml");
-		// String resp = swiftObj.process(swiftTiReq);
-		// String tag20 = swiftObj.getReferenceNo(swiftTiReq);
-		// swiftTiReq=swiftTiReq.replaceAll(tag20, "123****");
-		// logger.debug(swiftTiReq);
-		// String swiftTiReq =
-		// ThemeBridgeUtil.readFile("D:\\_Prasath\\Filezilla\\task\\tasksfms\\SFMS\\SFMSOUT-UAT1.xml");
-
-		String prdType = "IDC";
-		if (!prdType.equals("IDC") && !prdType.equals("ODC")) {
-			System.out.println("if " + prdType);
-		} else {
-			System.out.println("else " + prdType);
-		}
-
-		// String swiftTiReq = ThemeBridgeUtil
-		// .readFile("D:\\_Prasath\\00_TASK\\task
-		// swift-ifsc\\Swift-IFSC-Code-tirequest.xml");
-
-		// getswiftMSGType("","15654");
-
-		// String swiftTiReq =
-		// ThemeBridgeUtil.readFile("C:\\Users\\KXT51472\\Desktop\\new277.xml");
-		// String resp = swiftObj.process(swiftTiReq);
+		String inputXML = ThemeBridgeUtil.readFile("C:\\Users\\subhash\\Desktop\\SwiftOutTIRequest.txt");
+		System.out.println(inputXML);
+		String resp = swiftObj.process(inputXML);
 
 	}
 }

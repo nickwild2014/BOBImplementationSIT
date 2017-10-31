@@ -10,6 +10,7 @@ import java.security.Security;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -54,6 +55,14 @@ public final class DigitalSignature {
 		try {
 			DigitalSignature signer = new DigitalSignature();
 			KeyStore keyStore = signer.loadKeyStore();
+			
+			 Enumeration aliases = keyStore.aliases();
+		        String keyAlias = "";
+		        while (aliases.hasMoreElements()) {
+		            keyAlias = (String) aliases.nextElement();
+		            System.out.println("alias "+keyAlias);
+		        }
+			
 			CMSSignedDataGenerator signatureGenerator = signer.setUpProvider(keyStore);
 			// content = "some bytes to be signed";
 			// content = sfmsMsg;

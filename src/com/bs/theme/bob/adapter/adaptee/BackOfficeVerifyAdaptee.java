@@ -93,47 +93,21 @@ public class BackOfficeVerifyAdaptee extends ServiceProcessorUtil implements Ada
 	}
 
 	public static void main(String[] args) {
-
 		BackOfficeVerifyAdaptee bv = new BackOfficeVerifyAdaptee();
-		String tiReq;
-		try {
-			tiReq = ThemeBridgeUtil.readFile("D:\\_Prasath\\00_TASK\\BackOfficeVerify\\PostinfExposureFXdeal.xml");
-			bv.process(tiReq);
-			// bv.getPostingLegsMapList(tiReq);
-
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		// String errorCodes = "";
-		//
-		// Connection connection = null;
-		// PreparedStatement pst = null;
-		// ResultSet rs = null;
-		// try {
-		// connection = DatabaseUtility.getThemebridgeConnection();
-		// pst = connection.prepareStatement(
-		// "select trim(VALUE) errorCodes from BRIDGEPROPERTIES where
-		// key='BackOffice.Verify.ErrorCode'");
-		// rs = pst.executeQuery();
-		// if (rs.next()) {
-		// errorCodes = rs.getString("errorCodes");
-		// }
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// } finally {
-		// DatabaseUtility.surrenderPrepdConnection(connection, pst, rs);
-		// }
-		// String arrErrorCodes[] = errorCodes.split(",");
+//		String tiReq;
+//		try {
+//			tiReq = ThemeBridgeUtil.readFile("D:\\_Prasath\\00_TASK\\BackOfficeVerify\\PostinfExposureFXdeal.xml");
+//			bv.process(tiReq);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+		System.out.println(bv.getErrorOrWarning());
 
 	}
 
 	@Override
 	public String process(String tiRequestXML) throws Exception {
-
 		logger.info(" ************ Backoffice.Verify adaptee process started ************ ");
-
 		String tiResponseXML = "";
 		String errorDescription = "";
 		try {
@@ -141,20 +115,14 @@ public class BackOfficeVerifyAdaptee extends ServiceProcessorUtil implements Ada
 			tiReqTime = DateTimeUtil.getSqlLocalDateTime();
 			sourceSystem = XPathParsing.getValue(tiRequestXML, RequestHeaderXpath.SOURCESYSTEM);
 			targetSystem = XPathParsing.getValue(tiRequestXML, RequestHeaderXpath.TARGETSYSTEM);
-			// logger.debug("BackOffice.Verify TIReqTime: " + tiReqTime);
-			// logger.debug("BackOffice.Verify TI Request:\n" + tiRequest);
-
 			tiResponseXML = processTiRequest(tiRequestXML);
 			tiResTime = DateTimeUtil.getSqlLocalDateTime();
-			// logger.debug("BackOffice.Verify TI TIResTime: " + tiResTime);
 			logger.debug("BackOffice.Verify TI Response :\n" + tiResponseXML);
 			tiResponse = tiResponseXML;
-
 		} catch (Exception e) {
 			errorDescription = e.getMessage();
 			logger.error("BO Verify exceptions..! " + errorDescription);
 			tiResponse = getErrorResponse(errorDescription);
-
 		} finally {
 			if (!bankRequest.isEmpty() && !bankResponse.isEmpty())
 				ServiceLogging.pushLogData(SERVICE_BACKOFFICE, OPERATION_VERIFY, sourceSystem, branch, sourceSystem,
@@ -162,7 +130,6 @@ public class BackOfficeVerifyAdaptee extends ServiceProcessorUtil implements Ada
 						bankRequest, bankResponse, tiReqTime, bankReqTime, bankResTime, tiResTime, "", "", stepID, "",
 						false, "0", errorDescription);
 		}
-
 		logger.info(" ************ Backoffice.Verify adaptee process finished ************ ");
 		return tiResponse;
 	}
@@ -239,18 +206,11 @@ public class BackOfficeVerifyAdaptee extends ServiceProcessorUtil implements Ada
 					|| fxdealStatus.equalsIgnoreCase("FAILED")) {
 				headerStatus = "FAILED";
 				logger.debug("Milestone 03 BackOffice.Verify");
-				String errorCodes = getErrorCodeFromTIZone();
-				String arrErrorCodes[] = errorCodes.split(",");
+				String errorOrWarning = getErrorOrWarning();
 
 				String isResponseHasError = "";
-				for (String errorcode : arrErrorCodes) {
-					if (bankResponse.contains(errorcode)) {
-						logger.debug("ERROR : true");
-						isResponseHasError = "true";
-					} else
-						logger.debug("WARNING : true");
-				}
-				if (isResponseHasError.contains("true")) {
+	
+				if (errorOrWarning.contains("E")) {
 					headerErrorMsg = "Verify: " + postingErrWarnMsg + exposureErrWarnMsg + fxdealErrWarnMsg + " [IM]";
 				} else {
 					headerWarningMsg = "Verify: " + postingErrWarnMsg + exposureErrWarnMsg + fxdealErrWarnMsg + " [IM]";
@@ -281,19 +241,18 @@ public class BackOfficeVerifyAdaptee extends ServiceProcessorUtil implements Ada
 		return tiresponseXML;
 	}
 
-	private String getErrorCodeFromTIZone() {
+	private String getErrorOrWarning() {
 
-		String errorCode = "";
+		String errorOrWarning = "";
 		ResultSet rs = null;
 		Connection connection = null;
 		PreparedStatement pst = null;
 		try {
-			connection = DatabaseUtility.getTizoneConnection();
-			pst = connection.prepareStatement(
-					"select trim(propval) ErrorCode from extgencustprop where propname = 'BACKOFFICE.VERIFY.ERRORCODE'");
+			connection = DatabaseUtility.getThemebridgeConnection();
+			pst = connection.prepareStatement("select trim(value) value from BRIDGEPROPERTIES where key ='BackOffice.Verify.WarnError'");
 			rs = pst.executeQuery();
 			if (rs.next()) {
-				errorCode = rs.getString("ErrorCode");
+				errorOrWarning = rs.getString("value");
 			}
 		} catch (SQLException e) {
 			logger.error("SQLException! " + e.getMessage());
@@ -303,7 +262,7 @@ public class BackOfficeVerifyAdaptee extends ServiceProcessorUtil implements Ada
 			DatabaseUtility.surrenderPrepdConnection(connection, pst, rs);
 		}
 
-		return errorCode;
+		return errorOrWarning;
 	}
 
 	/**
@@ -439,7 +398,7 @@ public class BackOfficeVerifyAdaptee extends ServiceProcessorUtil implements Ada
 
 			bankReqTime = DateTimeUtil.getSqlLocalDateTime();
 			// logger.debug("BackOffice.Verify BankReqTime : " + bankReqTime);
-			String bankResp = getBankResponseFromBankRequest(bankReq);
+			String bankResp = getBankResponseFromBankRequest(bankReq);                      ///////////////////////
 			// String bankResp = ThemeBridgeUtil
 			// .readFile("D:\\_Prasath\\00_TASK\\BackOfficeVerify\\BankRespPostingFailure.xml");
 
@@ -488,10 +447,10 @@ public class BackOfficeVerifyAdaptee extends ServiceProcessorUtil implements Ada
 					SimpleDateFormat sdf2 = new SimpleDateFormat("dd-MM-yyyy");
 					String changedValueDate = sdf2.format(sdf1.parse(valueDate));
 
-					partTrnRec.append("\n<VALUE_DATE>" + changedValueDate + "</VALUE_DATE>");
+					//partTrnRec.append("\n<VALUE_DATE>" + changedValueDate + "</VALUE_DATE>");
 
-					partTrnRec.append(
-							"\n<FORCE_DEBIT>" + postingLegsMapList.get(i).get("forceDebitFlag") + "</FORCE_DEBIT>");
+//					partTrnRec.append(
+//							"\n<FORCE_DEBIT>" + postingLegsMapList.get(i).get("forceDebitFlag") + "</FORCE_DEBIT>");
 				}
 				String accountNumber = "";
 				String debitCredit = postingLegsMapList.get(i).get("debitCreditFlag");
@@ -504,7 +463,7 @@ public class BackOfficeVerifyAdaptee extends ServiceProcessorUtil implements Ada
 				// 2017-04-11
 				postingAmount = AmountConversion.getTransactionAmount(postingAmount, postingCcy);
 
-				partTrnRec.append("\n<PartTrnRec isMultirec=\"Y\">");
+				partTrnRec.append("\n<partTran ismultirec=\"Y\">");
 				/** UAT **/
 				// if ((accountType.startsWith("R") ||
 				// accountType.startsWith("L")) && !accountType.equals("R1")
@@ -522,16 +481,16 @@ public class BackOfficeVerifyAdaptee extends ServiceProcessorUtil implements Ada
 				// partTrnRec.append("\n\t<AcctId>" + boaccountNumber +
 				// "</AcctId>");
 				// }
+				
+				
 				/** SIT **/
-				partTrnRec.append("\n\t<AcctId>" + boaccountNumber + "</AcctId>");
-
-				partTrnRec.append("\n\t<partTrnType>" + debitCredit + "</partTrnType>");
-				partTrnRec.append("\n\t<TrAmt>");
-				partTrnRec.append("\n\t\t<val>" + postingAmount + "</val>");
-				partTrnRec.append("\n\t\t<crncy>" + postingCcy + "</crncy>");
-				partTrnRec.append("\n\t</TrAmt>");
-				partTrnRec.append("\n\t<PartTrnSrlNo>" + reccount + "</PartTrnSrlNo>");
-				partTrnRec.append("\n</PartTrnRec>");
+				partTrnRec.append("\n\t<acctNo>" + boaccountNumber + "</acctNo>");
+				partTrnRec.append("\n\t<drCrInd>" + debitCredit + "</drCrInd>");
+				partTrnRec.append("\n\t\t<tranAmt>" + postingAmount + "</tranAmt>");
+				partTrnRec.append("<tranParti>" + "" + "</tranParti>");
+				//partTrnRec.append("<tranRmks>" + postingLeg.get("lobcode") + "</tranRmks>"); // lob
+				partTrnRec.append("<tranRmks>" + "" + "</tranRmks>"); // lob
+				partTrnRec.append("\n</partTran>");
 				reccount++;
 			}
 		} catch (Exception e) {
@@ -632,11 +591,11 @@ public class BackOfficeVerifyAdaptee extends ServiceProcessorUtil implements Ada
 			String requestTemplate = ThemeBridgeUtil.readFile(anInputStream);
 
 			String dateTime = DateTimeUtil.getDateAsEndSystemFormat();
-			tokens.put("RequestUUID", correlationId);
+			tokens.put("requestId", correlationId);
 			tokens.put("ChannelId", KotakConstant.CHANNELID);
 			tokens.put("BankId", KotakConstant.BANKID);
 			tokens.put("ServiceReqVersion", KotakConstant.SERVICEREQUESTVERSION);
-			tokens.put("MessageDateTime", dateTime);
+			tokens.put("dateTime", dateTime);
 
 			// tokens.put("VALUE_DATE", postingLeg.get("valueDate") + "T" +
 			// DateTimeUtil.getStringLocalTimeFi());
@@ -709,8 +668,10 @@ public class BackOfficeVerifyAdaptee extends ServiceProcessorUtil implements Ada
 			 **/
 			if ((!headerErrorMsg.isEmpty() || !headerWarningMsg.isEmpty())) {
 
-				if ((!stepName.isEmpty() && !stepType.equals("a1"))
-						&& (!stepName.isEmpty() && !stepName.equalsIgnoreCase(StepNameConstants.CSM_STEP))) {
+//				if ((!stepName.isEmpty() && !stepType.equals("a1"))
+//						&& (!stepName.isEmpty() && !stepName.equalsIgnoreCase(StepNameConstants.CSM_STEP)))
+				if(headerErrorMsg!=null && !headerErrorMsg.isEmpty())
+				{
 					logger.debug("Verify:ErrorAndWarning");
 					tokens.put("HeaderError", headerErrorMsg + headerWarningMsg);
 					tokens.put("HeaderWarning", "");

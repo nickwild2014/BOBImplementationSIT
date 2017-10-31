@@ -202,38 +202,6 @@ public class BackOfficeBatchAdaptee extends ServiceProcessorUtil implements Adap
 				alertMailThread.setName("alertMailThread");
 				alertMailThread.start();
 
-				// logger.debug("Mater " + masterReference + "Event : " +
-				// eventReference);
-
-				// if (((masterReference != null &&
-				// !masterReference.trim().isEmpty()))
-				// && ((eventReference != null &&
-				// !eventReference.trim().isEmpty()))) {
-				// Thread tranPostingthread = new Thread() {
-				// public void run() {
-				// try {
-				// Thread.sleep(5000);
-				// } catch (InterruptedException e) {
-				// e.printStackTrace();
-				// }
-				// boolean transactionPostingStatus =
-				// checkTransactionPostingStatus(masterReference.trim(),
-				// eventReference.trim());
-				// if (transactionPostingStatus) {
-				// List<Postingstaging> aPostingstaging =
-				// getStagingQueueDetails(masterReference.trim(),
-				// eventReference.trim());
-				// if (aPostingstaging.size() > 0)
-				// PostingStagingAdaptee.checkStagingPostingStatus(aPostingstaging);
-				// else
-				// logger.debug("Posting Staging list empty...!");
-				// }
-				// }
-				// };
-				// tranPostingthread.setName("tranPostingthread");
-				// tranPostingthread.start();
-				//
-				// }
 			}
 		}
 		logger.info(" ************ Backoffice.Batch adaptee process finished ************ ");

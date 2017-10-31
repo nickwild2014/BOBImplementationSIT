@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -81,8 +82,8 @@ public class GatewayRtgsNeftAdapteeStaging {
 		//System.out.println(getTcpPort());
 		
 		
-		String request = ThemeBridgeUtil.readFile("C:\\Users\\subhash\\Desktop\\RTGSGateWay.txt");
-		new GatewayRtgsNeftAdapteeStaging().process(request);
+		//String request = ThemeBridgeUtil.readFile("C:\\Users\\subhash\\Desktop\\RTGSGateWay.txt");
+		//new GatewayRtgsNeftAdapteeStaging().process(request);
 		
 		//String request = ThemeBridgeUtil.readFile("C:\\Users\\subhash\\Desktop\\RTGSConnectResponse.txt");
 		//System.out.println(getTagAddressValue(request,"126:").replaceAll(" ", ""));
@@ -151,8 +152,10 @@ public class GatewayRtgsNeftAdapteeStaging {
 				}
 				System.out.println("utrNumber "+utrNumber);
 				try {
+					if(utrNumber!=null) {
 				updateRegularUtrSlNo(utrNumber, rtgsNeftMapList.get("creditAmount"), rtgsNeftMapList.get("masterReference"),
 						rtgsNeftMapList.get("eventReference"));
+					}
 				}
 				catch(Exception ex)
 				{
@@ -228,7 +231,7 @@ public class GatewayRtgsNeftAdapteeStaging {
 		String reposneMessage = "";
 		DataOutputStream out = null;
 		InputStream in = null;
-		
+		Socket client = null;
 //		String isoMessage = getISOMessage(requestMessage, rtgsNeftMapList);
 //		try {
 //			reposneMessage = getBankResponseFromBankRequest(isoMessage);
@@ -241,16 +244,16 @@ public class GatewayRtgsNeftAdapteeStaging {
 //		}
 		
 		try {
-			String isoMessage = getISOMessage(requestMessage, rtgsNeftMapList);
-			bankRequest=isoMessage;
+			byte[] isoMessage = getISOMessage(requestMessage, rtgsNeftMapList);
+			bankRequest=isoMessage.toString();
 			logger.info("Connecting to " + serverName + " on port " + port);
 			logger.info("ISOMsg RESULT : " + isoMessage);
-			Socket client = new Socket(serverName, port);
+			client = new Socket(serverName, port);
 			client.setSoTimeout(100000);
 			logger.info("Just connected to " + client.getRemoteSocketAddress());
 			OutputStream outToServer = client.getOutputStream();
 			out = new DataOutputStream(outToServer);
-			out.write(isoMessage.getBytes());
+			out.write(isoMessage);
 			out.flush();
 			logger.info("Push message to server");
 			 in = client.getInputStream();
@@ -262,12 +265,13 @@ public class GatewayRtgsNeftAdapteeStaging {
 //				dis.readFully(data);
 //			reposneMessage = new String(data);
 			logger.info("TCP / IP Server result =>" + reposneMessage);
-			client.close();
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			reposneMessage = "";
 		} finally {
 			try {
+				client.close();
 				out.close();
 				in.close();
 				
@@ -277,9 +281,12 @@ public class GatewayRtgsNeftAdapteeStaging {
 		}
 		return reposneMessage;
 	}
+	
+	
 
-	public static String getISOMessage(String requestMessage, Map<String, String> rtgsNeftMapList) {
+	public static byte[] getISOMessage(String requestMessage, Map<String, String> rtgsNeftMapList) {
 		String isoMessage = "";
+		byte[] data = null;
 		try {
 			// Create Packager based on XML that contain DE type
 			GenericPackager packager = new GenericPackager("Files/isoFields.xml");
@@ -332,6 +339,7 @@ public class GatewayRtgsNeftAdapteeStaging {
 			isoMsg.set(127, field127);// Reserved for Private Use
 			// print the DE list
 			 isoMessage = logISOMsg(isoMsg);
+			 data = isoMsg.pack();
 			// Get and print the output result
 		} catch (ISOException e) {
 			System.out.println(e);
@@ -339,7 +347,7 @@ public class GatewayRtgsNeftAdapteeStaging {
 			e.printStackTrace();
 		}
 
-		return isoMessage;
+		return data;
 
 	}
 

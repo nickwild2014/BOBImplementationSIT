@@ -107,6 +107,7 @@ public class AccountAvailBalAdaptee extends ServiceProcessorUtil implements Adap
 			// logger.debug("\n\nAvailBal Bank Request:\n" + bankRequest);
 
 			bankResponse = getBankResponseFromBankRequest(bankRequest);
+			System.out.println("bankResponse "+bankResponse);
 			bankResTime = DateTimeUtil.getSqlLocalDateTime();
 			// logger.debug("\n\nAvailBal Bank Response:\n" + bankResponse);
 			logger.debug("AvailBal Bank Response API: >>>>" + bankResponse + "<<<<");
@@ -294,36 +295,37 @@ public class AccountAvailBalAdaptee extends ServiceProcessorUtil implements Adap
 			// TODO currency check validations
 			// HashMap<String, String> accountDetailMap = accountDetails("INR",
 			// "12882199416101");
-			//HashMap<String, String> accountDetailMap = accountDetails(postingCurrency, accountNumber);
+			HashMap<String, String> accountDetailMap = accountDetails(postingCurrency, accountNumber);
 			String internalAccType = "";
-//			if (accountDetailMap != null) {
-//				internalAccType = accountDetailMap.get("INTRNAL");
-//				accountType = accountDetailMap.get("ACC_TYPE");
-//			}
-//			if (accountDetailMap != null && (accountType.equals("CN") || accountType.startsWith("R"))
-//					&& !accountType.equals("R1") && !accountType.equals("R11") && !accountType.equals("RTGS")) {
-//				logger.debug("Account Type(CN / R) : " + accountType + ", Suppressed Account Avail Balance enquiry");
-//				tokens.put("blocked", "N");
-//				tokens.put("negative", "N");
-//				tokens.put("errorMessage", "");// always
-//				tokens.put("balance", "999999999999999");
-//				tokens.put("errorOrWarning", EnigmaBoolean.N.toString());// always
-//																			// warning
-//				tokens.put("status", ThemeBridgeStatusEnum.SUCCEEDED.toString());
-//
-//			} else if (accountDetailMap != null && internalAccType.equals("Y")) {
-//				logger.debug("InternalAcc (Y / N): " + internalAccType + ", Suppressed Account Avail Balance enquiry");
-//				tokens.put("blocked", "N");
-//				tokens.put("negative", "N");
-//				tokens.put("errorMessage", "");// always
-//				tokens.put("balance", "999999999999999");
-//				tokens.put("errorOrWarning", EnigmaBoolean.N.toString());// always
-//																			// warning
-//				tokens.put("status", ThemeBridgeStatusEnum.SUCCEEDED.toString());
-//
-//			} 
-			//else
-				if (tiRequestPostingAmount.equals("0") || tiRequestPostingAmount.equals("0.0")
+			if (accountDetailMap != null) {
+				internalAccType = accountDetailMap.get("INTRNAL");
+				accountType = accountDetailMap.get("ACC_TYPE");
+			}
+			//if (accountDetailMap != null && (accountType.equals("CN") || accountType.startsWith("R"))
+				//	&& !accountType.equals("R1") && !accountType.equals("R11") && !accountType.equals("RTGS"))
+			if (accountDetailMap != null && (accountType.equals("CN")))
+			{
+				logger.debug("Account Type(CN / R) : " + accountType + ", Suppressed Account Avail Balance enquiry");
+				tokens.put("blocked", "N");
+				tokens.put("negative", "N");
+				tokens.put("errorMessage", "");// always
+				tokens.put("balance", "999999999999999");
+				tokens.put("errorOrWarning", EnigmaBoolean.N.toString());// always
+																			// warning
+				tokens.put("status", ThemeBridgeStatusEnum.SUCCEEDED.toString());
+
+			} else if (accountDetailMap != null && internalAccType.equals("Y")) {
+				logger.debug("InternalAcc (Y / N): " + internalAccType + ", Suppressed Account Avail Balance enquiry");
+				tokens.put("blocked", "N");
+				tokens.put("negative", "N");
+				tokens.put("errorMessage", "");// always
+				tokens.put("balance", "999999999999999");
+				tokens.put("errorOrWarning", EnigmaBoolean.N.toString());// always
+																			// warning
+				tokens.put("status", ThemeBridgeStatusEnum.SUCCEEDED.toString());
+
+			} 
+			else if (tiRequestPostingAmount.equals("0") || tiRequestPostingAmount.equals("0.0")
 					|| tiRequestPostingAmount.equals("0.00") || tiRequestPostingAmount.equals("0.000")) {
 				logger.debug("Ms 01 c");
 				logger.debug("TI Request amount is(ZERO) " + reqAmount + ", Suppressed Account Avail Balance enquiry");
@@ -566,35 +568,35 @@ public class AccountAvailBalAdaptee extends ServiceProcessorUtil implements Adap
 	 * @param accountNumber
 	 * @return
 	 */
-	public static String getAccountType(String currency, String accountNumber) {
-
-		String accType = "";
-		ResultSet aResultset = null;
-		Statement aStatement = null;
-		Connection aConnection = null;
-
-		String accountTypeQuery = "SELECT TRIM(ACC_TYPE) AS ACC_TYPE, CUS_MNM, BRCH_MNM, CURRENCY FROM ACCOUNT WHERE TRIM(CURRENCY) = '"
-				+ currency + "' AND TRIM(BO_ACCTNO) = '" + accountNumber + "'";
-		// logger.debug("AccountTypeQuery : " + accountTypeQuery);
-
-		try {
-			aConnection = DatabaseUtility.getTizoneConnection();
-			aStatement = aConnection.createStatement();
-			aResultset = aStatement.executeQuery(accountTypeQuery);
-			while (aResultset.next()) {
-				accType = aResultset.getString("ACC_TYPE");
-			}
-
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
-
-		} finally {
-			DatabaseUtility.surrenderConnection(aConnection, aStatement, aResultset);
-		}
-
-		return accType;
-	}
+//	public static String getAccountType(String currency, String accountNumber) {
+//
+//		String accType = "";
+//		ResultSet aResultset = null;
+//		Statement aStatement = null;
+//		Connection aConnection = null;
+//
+//		String accountTypeQuery = "SELECT TRIM(ACC_TYPE) AS ACC_TYPE, CUS_MNM, BRCH_MNM, CURRENCY FROM ACCOUNT WHERE TRIM(CURRENCY) = '"
+//				+ currency + "' AND TRIM(BO_ACCTNO) = '" + accountNumber + "'";
+//		// logger.debug("AccountTypeQuery : " + accountTypeQuery);
+//
+//		try {
+//			aConnection = DatabaseUtility.getTizoneConnection();
+//			aStatement = aConnection.createStatement();
+//			aResultset = aStatement.executeQuery(accountTypeQuery);
+//			while (aResultset.next()) {
+//				accType = aResultset.getString("ACC_TYPE");
+//			}
+//
+//		} catch (Exception e) {
+//			logger.error(e.getMessage());
+//			e.printStackTrace();
+//
+//		} finally {
+//			DatabaseUtility.surrenderConnection(aConnection, aStatement, aResultset);
+//		}
+//
+//		return accType;
+//	}
 
 	/**
 	 * 
@@ -636,28 +638,10 @@ public class AccountAvailBalAdaptee extends ServiceProcessorUtil implements Adap
 	}
 
 	public static void main(String a[]) throws Exception {
-
-		// String requestXML = ThemeBridgeUtil
-		// .readFile("C:\\Users\\KXT51472\\Desktop\\ErrorResponse\\Account.AvailBal.xml");
-		// System.out.println(requestXML);
-
 		AccountAvailBalAdaptee as = new AccountAvailBalAdaptee();
-		// String responseXML = as.process(requestXML);
-		// logger.debug("AccountAvailBal : " + responseXML);
-
-		//
-		// String requestXML =
-		// ThemeBridgeUtil.readFile("C:\\Users\\KXT51472\\Desktop\\AccountEnquiry.xml");
-		// System.out.println(as.getBankResponseErrorMessage(xml));
-		// System.out.println(as.process(requestXML));
-
-		String requestXML = ThemeBridgeUtil.readFile("C:\\\\Users\\\\subhash\\\\Desktop\\\\AvailableBalRequest2.xml");
+		//String requestXML = ThemeBridgeUtil.readFile("C:\\Users\\subhash\\Desktop\\bob documents\\04_TIPlus2.7_API_XMLs\\Account.AvailBal-REQUEST.xml");
+		String requestXML =ThemeBridgeUtil.readFile("C:\\Users\\subhash\\Desktop\\AvailableBalRequest2.xml");
 		System.out.println(as.process(requestXML));
-
-		// System.out.println(getAmountWithPaddingFz("1654654654.98"));
-
-		// System.out.println("" + accountDetails("INR", "04220125995022"));
-		// System.out.println(getAccountType("USD", "06320125989001"));
 
 	}
 

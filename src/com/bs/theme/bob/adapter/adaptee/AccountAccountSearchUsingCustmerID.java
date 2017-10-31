@@ -5,7 +5,9 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.JAXBException;
@@ -32,16 +34,16 @@ import com.bs.themebridge.util.ThemeBridgeUtil;
 import com.bs.themebridge.xpath.RequestHeaderXpath;
 import com.bs.themebridge.xpath.XPathParsing;
 
-public class AccountAccountSearchAdaptee extends ServiceProcessorUtil implements AdapteeInterface {
+public class AccountAccountSearchUsingCustmerID extends ServiceProcessorUtil implements AdapteeInterface {
 
-	private final static Logger logger = Logger.getLogger(AccountAccountSearchAdaptee.class.getName());
+	private final static Logger logger = Logger.getLogger(AccountAccountSearchUsingCustmerID.class.getName());
 
-	public AccountAccountSearchAdaptee(String inputXml)
+	public AccountAccountSearchUsingCustmerID(String inputXml)
 			throws ParserConfigurationException, SAXException, IOException, JAXBException {
 		super(inputXml);
 	}
 
-	public AccountAccountSearchAdaptee() {
+	public AccountAccountSearchUsingCustmerID() {
 	}
 
 	private String sourceSystem = "";
@@ -63,13 +65,16 @@ public class AccountAccountSearchAdaptee extends ServiceProcessorUtil implements
 
 	public static void main(String[] args) {
 
-		AccountAccountSearchAdaptee accountAccountSearchAdaptee = new AccountAccountSearchAdaptee();
+		AccountAccountSearchUsingCustmerID accountAccountSearchAdaptee = new AccountAccountSearchUsingCustmerID();
 		try {
-			String tirequestXML = ThemeBridgeUtil.readFile(
-					"C:\\Users\\subhash\\Desktop\\bob documents\\04_TIPlus2.7_API_XMLs\\Account.AccountSearch-REQUEST.xml");
-			String resp = accountAccountSearchAdaptee.process(tirequestXML);
-			System.out.println("resp " + resp);
-
+//			String bankResponse = ThemeBridgeUtil.readFile(
+//					"C:\\Users\\subhash\\Desktop\\new 11.txt");
+//			String tiResponse = accountAccountSearchAdaptee.getTIResponseFromBankResponse(bankResponse);
+//			System.out.println(tiResponse);
+			String tirequestXML = ThemeBridgeUtil.readFile("C:\\Users\\subhash\\Desktop\\bob documents\\04_TIPlus2.7_API_XMLs\\Account.AccountSearch-REQUEST.xml");
+			String bankRequest = accountAccountSearchAdaptee.getBankRequestFromTiRequest(tirequestXML);
+			System.out.println("Account Search BankRequest : \n" + bankRequest);
+			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -77,32 +82,7 @@ public class AccountAccountSearchAdaptee extends ServiceProcessorUtil implements
 
 	}
 
-	public String process(String tirequestXML) throws XPathExpressionException, SAXException, IOException {
-		String SearchType1 = "";
-		SearchType1 = XPathParsing.getValue(tirequestXML, "/ServiceRequest/AccountSearchRequest/SearchType");
-
-		if (SearchType1 != null && !SearchType1.isEmpty()) {
-			if (SearchType1.equalsIgnoreCase("internal")) {
-				tiResponse = new AccountAccountSearchAdapteeInternal().process(tirequestXML);
-				return tiResponse;
-			} else if (SearchType1.equalsIgnoreCase("Customer")) {
-				String BackOfficeAccount = XPathParsing.getValue(tirequestXML,
-						"/ServiceRequest/AccountSearchRequest/BackOfficeAccount");
-				if (BackOfficeAccount != null && !BackOfficeAccount.isEmpty()) {
-					return processAccountSearch(tirequestXML);
-				} else {
-					tiResponse = new AccountAccountSearchUsingCustmerID().process(tirequestXML);
-					return tiResponse;
-				}
-			} else {
-				return processAccountSearch(tirequestXML);
-			}
-		}
-
-		return tiResponse;
-	}
-
-	public String processAccountSearch(String tirequestXML) {
+	public String process(String tirequestXML)  {
 		System.out.println(" ************ Account Search adaptee process started ************ ");
 		String status = ThemeBridgeStatusEnum.SUCCEEDED.toString();
 		String errorMsg = "";
@@ -146,72 +126,77 @@ public class AccountAccountSearchAdaptee extends ServiceProcessorUtil implements
 		}
 		System.out.println(" ************ Account Search adaptee process ended ************ ");
 		return tiResponse;
+
 	}
+
 
 	private String getTIResponseFromBankResponse(String bankResponse)
 			throws XPathExpressionException, SAXException, IOException {
-		HashMap<String, String> bankReqValues = new HashMap<String, String>();
 		String tiResponseXML = null;
+		
+		int tagcount = XPathParsing.getMultiTagCount(bankResponse,
+				"/FIXML/Body/executeFinacleScriptResponse/executeFinacleScript_CustomData/CustomerAccountDetails/Account");
+		System.out.println("tagcount "+tagcount);
+		
+		List<HashMap<String, String>> hashMapList = new ArrayList<HashMap<String, String>>();
+		
+		for (int i = 1; i <= tagcount; i++) {
+			HashMap<String, String> hashmap = new HashMap<String, String>();
+			String Branch = XPathParsing.getValue(bankResponse,
+					"/FIXML/Body/executeFinacleScriptResponse/executeFinacleScript_CustomData/CustomerAccountDetails/Account["+i+"]/Branch");
+			String Customer = XPathParsing.getValue(bankResponse,
+					"/FIXML/Body/executeFinacleScriptResponse/executeFinacleScript_CustomData/CustomerAccountDetails/Account["+i+"]/Customer");
+			String AccountType = XPathParsing.getValue(bankResponse,
+					"/FIXML/Body/executeFinacleScriptResponse/executeFinacleScript_CustomData/CustomerAccountDetails/Account["+i+"]/AccountType");
+			String Currency = XPathParsing.getValue(bankResponse,
+					"/FIXML/Body/executeFinacleScriptResponse/executeFinacleScript_CustomData/CustomerAccountDetails/Account["+i+"]/Currency");
+			String OtherCurrency = XPathParsing.getValue(bankResponse,
+					"/FIXML/Body/executeFinacleScriptResponse/executeFinacleScript_CustomData/CustomerAccountDetails/Account["+i+"]/OtherCurrency");
+			String BackOfficeAccount = XPathParsing.getValue(bankResponse,
+					"/FIXML/Body/executeFinacleScriptResponse/executeFinacleScript_CustomData/CustomerAccountDetails/Account["+i+"]/BackOfficeAccount");
+			String ShortName = XPathParsing.getValue(bankResponse,
+					"/FIXML/Body/executeFinacleScriptResponse/executeFinacleScript_CustomData/CustomerAccountDetails/Account["+i+"]/ShortName");
+			hashmap.put("Branch", Branch);
+			hashmap.put("Customer", Customer);
+			hashmap.put("AccountType", AccountType);
+			hashmap.put("Currency", Currency);
+			hashmap.put("OtherCurrency", OtherCurrency);
+			hashmap.put("BackOfficeAccount", BackOfficeAccount);
+			hashmap.put("ShortName", ShortName);
+			hashMapList.add(hashmap);
+		}
+		StringBuilder customerAccounts = new StringBuilder();
+		for (HashMap<String, String> hashMap : hashMapList) {
+			
+			customerAccounts.append("\n<m:AccountSearchResult>");
+			customerAccounts.append("\n<m:Branch>"+hashMap.get("Branch")+"</m:Branch>");
+			customerAccounts.append("\n<m:BranchNumber></m:BranchNumber>");
+			customerAccounts.append("\n<m:Customer>"+hashMap.get("Customer")+"</m:Customer>");
+			customerAccounts.append("\n<m:CustomerNumber></m:CustomerNumber>");
+			customerAccounts.append("\n<m:SystemParameter></m:SystemParameter>");
+			customerAccounts.append("\n<m:ChargeCode></m:ChargeCode>");
+			customerAccounts.append("\n<m:CategoryCode></m:CategoryCode>");
+			customerAccounts.append("\n<m:AccountType>"+hashMap.get("AccountType")+"</m:AccountType>");
+			customerAccounts.append("\n<m:Currency>"+hashMap.get("Currency")+"</m:Currency>");
+			customerAccounts.append("\n<m:OtherCurrency>"+hashMap.get("OtherCurrency")+"</m:OtherCurrency>");
+			customerAccounts.append("\n<m:BackOfficeAccount>"+hashMap.get("BackOfficeAccount")+"</m:BackOfficeAccount>");
+			customerAccounts.append("\n<m:ShortName>"+hashMap.get("ShortName")+"</m:ShortName>");
+			customerAccounts.append("\n<m:ExternalAccount></m:ExternalAccount>");
+			customerAccounts.append("\n<m:IBAN></m:IBAN>");
+			
+			customerAccounts.append("\n</m:AccountSearchResult>");
+		
+		}
+		
 		try {
 
 			// String STATUS = XPathParsing.getValue(bankResponse,
 			// "/FIXML/Body/executeFinacleScriptResponse/executeFinacleScript_CustomData/STATUS/");
 
-			String MaintainedInBackOffice = XPathParsing.getValue(bankResponse,
-					"/FIXML/Body/executeFinacleScriptResponse/executeFinacleScript_CustomData/AccountDetail/MaintainedInBackOffice");
-			String AccountNumber = XPathParsing.getValue(bankResponse,
-					"/FIXML/Body/executeFinacleScriptResponse/executeFinacleScript_CustomData/AccountDetail/AccountNumber");
-			String Branch = XPathParsing.getValue(bankResponse,
-					"/FIXML/Body/executeFinacleScriptResponse/executeFinacleScript_CustomData/AccountDetail/SolId");
-			String customer = XPathParsing.getValue(bankResponse,
-					"/FIXML/Body/executeFinacleScriptResponse/executeFinacleScript_CustomData/AccountDetail/CustId");
-			String SchmType = XPathParsing.getValue(bankResponse,
-					"/FIXML/Body/executeFinacleScriptResponse/executeFinacleScript_CustomData/AccountDetail/SchmType");
-			String Currency = XPathParsing.getValue(bankResponse,
-					"/FIXML/Body/executeFinacleScriptResponse/executeFinacleScript_CustomData/AccountDetail/AcctCrncy");
-			String IBAN_Number = XPathParsing.getValue(bankResponse,
-					"/FIXML/Body/executeFinacleScriptResponse/executeFinacleScript_CustomData/AccountDetail/IBAN_Number");
-			String Short_Name = XPathParsing.getValue(bankResponse,
-					"/FIXML/Body/executeFinacleScriptResponse/executeFinacleScript_CustomData/AccountDetail/Short_Name");
-			String Country = XPathParsing.getValue(bankResponse,
-					"/FIXML/Body/executeFinacleScriptResponse/executeFinacleScript_CustomData/AccountDetail/Country");
-			String ContingentAccount = XPathParsing.getValue(bankResponse,
-					"/FIXML/Body/executeFinacleScriptResponse/executeFinacleScript_CustomData/AccountDetail/ContingentAccount");
-			String InternalAccount = XPathParsing.getValue(bankResponse,
-					"/FIXML/Body/executeFinacleScriptResponse/executeFinacleScript_CustomData/AccountDetail/InternalAccount");
-			String AcctOpenDate = XPathParsing.getValue(bankResponse,
-					"/FIXML/Body/executeFinacleScriptResponse/executeFinacleScript_CustomData/AccountDetail/AcctOpenDate");
-			String DateMaintained = XPathParsing.getValue(bankResponse,
-					"/FIXML/Body/executeFinacleScriptResponse/executeFinacleScript_CustomData/AccountDetail/DateMaintained");
-			String AcctCloseDate = XPathParsing.getValue(bankResponse,
-					"/FIXML/Body/executeFinacleScriptResponse/executeFinacleScript_CustomData/AccountDetail/AcctCloseDate");
-
-			bankReqValues.put("AccountNumber", AccountNumber);
-			bankReqValues.put("Short_Name", Short_Name);
-			bankReqValues.put("SolId", Branch);
-			bankReqValues.put("BranchNumber", "");
-			bankReqValues.put("CustId", customer);
-			bankReqValues.put("CustomerNumber", "");
-			bankReqValues.put("CategoryCode", "");
-			bankReqValues.put("SchmType", SchmType);
-			bankReqValues.put("AcctCrncy", Currency);
-			bankReqValues.put("CurrencyNumber", "");
-			bankReqValues.put("OtherCurrency", "");
-			bankReqValues.put("OtherCurrencyNumber", "");
-			bankReqValues.put("ExternalAccount", "");
-			bankReqValues.put("IBAN_Number", IBAN_Number);
-			bankReqValues.put("ContingentAccount", ContingentAccount);
-			bankReqValues.put("InternalAccount", InternalAccount);
-			bankReqValues.put("AcctOpenDate", AcctOpenDate);
-			bankReqValues.put("DateMaintained", DateMaintained);
-			bankReqValues.put("AcctCloseDate", AcctCloseDate);
-			bankReqValues.put("Description1", "");
-			bankReqValues.put("Description2", "");
-
-			System.out.println("bankReqValues ====> " + bankReqValues);
+			
 			try {
 				InputStream anInputStream = BackOfficeBatchAdaptee.class.getClassLoader()
-						.getResourceAsStream(RequestResponseTemplate.ACCOUNT_SEARCH_TI_RESPONSE_TEMPLATE);
+						.getResourceAsStream(RequestResponseTemplate.ACCOUNT_SEARCH_USING_CUSTID_TI_RESPONSE_TEMPLATE);
 				String requestTemplate = ThemeBridgeUtil.readFile(anInputStream);
 				String dateTime = DateTimeUtil.getDateAsEndSystemFormat();
 				String requestId = "Req_" + correlationId;
@@ -222,40 +207,15 @@ public class AccountAccountSearchAdaptee extends ServiceProcessorUtil implements
 				tokens.put("BankId", KotakConstant.BANKID);
 				tokens.put("ServiceReqVersion", KotakConstant.SERVICEREQUESTVERSION);
 				tokens.put("CorrelationId", correlationId);
-
-				tokens.put("AccountNumber", bankReqValues.get("AccountNumber"));
-				tokens.put("SolId", bankReqValues.get("SolId"));
-				tokens.put("BranchNumber", bankReqValues.get("BranchNumber"));
-				tokens.put("CustId", bankReqValues.get("CustId"));
-				tokens.put("CustomerNumber", bankReqValues.get("CustomerNumber"));
-				tokens.put("CategoryCode", bankReqValues.get("CategoryCode"));
-				tokens.put("SchmType", bankReqValues.get("SchmType"));
-				tokens.put("AcctCrncy", bankReqValues.get("AcctCrncy"));
-				tokens.put("CurrencyNumber", bankReqValues.get("CurrencyNumber"));
-				tokens.put("OtherCurrency", bankReqValues.get("OtherCurrency"));
-				tokens.put("OtherCurrencyNumber", bankReqValues.get("OtherCurrencyNumber"));
-				tokens.put("ExternalAccount", bankReqValues.get("ExternalAccount"));
-				tokens.put("IBAN_Number", bankReqValues.get("IBAN_Number"));
-				tokens.put("Short_Name", bankReqValues.get("Short_Name"));
-				tokens.put("ContingentAccount", bankReqValues.get("ContingentAccount"));
-				tokens.put("InternalAccount", bankReqValues.get("InternalAccount"));
-				tokens.put("AcctOpenDate", bankReqValues.get("AcctOpenDate"));
-				tokens.put("DateMaintained", bankReqValues.get("DateMaintained"));
-				tokens.put("AcctCloseDate", bankReqValues.get("AcctCloseDate"));
-				tokens.put("Description1", bankReqValues.get("Description1"));
-				tokens.put("Description2", bankReqValues.get("Description2"));
-
-				tokens.put("SystemParameter", "");
-				tokens.put("ChargeCode", "");
-				tokens.put("AdditionalResults", "");
-
 				// if(STATUS.equalsIgnoreCase("SUCCESS"))
 				tokens.put("Status", "SUCCEEDED");
 				// else tokens.put("Status", "FAILED");
 				tokens.put("Error", "");
 				tokens.put("Warning", "");
 				tokens.put("Info", "");
-
+				tokens.put("customerAccounts", customerAccounts.toString());
+				tokens.put("AdditionalResults", "");
+				
 				MapTokenResolver resolver = new MapTokenResolver(tokens);
 				Reader fileValue = new StringReader(requestTemplate);
 				Reader reader = new TokenReplacingReader(fileValue, resolver);
@@ -344,13 +304,13 @@ public class AccountAccountSearchAdaptee extends ServiceProcessorUtil implements
 			targetSystem = XPathParsing.getValue(requestXML, RequestHeaderXpath.TARGETSYSTEM);
 
 			correlationId = XPathParsing.getValue(requestXML, "/ServiceRequest/RequestHeader/CorrelationId");
-			String BackOfficeAccount = XPathParsing.getValue(requestXML,
-					"/ServiceRequest/AccountSearchRequest/BackOfficeAccount");
+			String CustID = XPathParsing.getValue(requestXML,
+					"/ServiceRequest/AccountSearchRequest/Customer");
 			// String accountNumber =
 			// XPathParsing.getValue(requestXML,"/ServiceRequest/AccountDetailsRequest/AccountNumber");
-			System.out.println("BackOfficeAccount " + BackOfficeAccount);
+			System.out.println("CustID " + CustID);
 			// tiReqValues.put("accountFormat", accountFormat);
-			tiReqValues.put("accountNumber", BackOfficeAccount);
+			tiReqValues.put("CustID", CustID);
 
 			if (correlationId != null && !correlationId.isEmpty()) {
 				bankRequestt = generateBankRequest(tiReqValues, correlationId);
@@ -373,7 +333,7 @@ public class AccountAccountSearchAdaptee extends ServiceProcessorUtil implements
 		String bankRequestXML = null;
 		try {
 			InputStream anInputStream = BackOfficeBatchAdaptee.class.getClassLoader()
-					.getResourceAsStream(RequestResponseTemplate.ACCOUNT_DETAILS_TEMPLATE);
+					.getResourceAsStream(RequestResponseTemplate.ACCOUNT_DETAILS_USING_CUSTID_TEMPLATE);
 			String requestTemplate = ThemeBridgeUtil.readFile(anInputStream);
 			String dateTime = DateTimeUtil.getDateAsEndSystemFormat();
 			// logger.debug("BankReqXML Milestone 02");
@@ -383,7 +343,7 @@ public class AccountAccountSearchAdaptee extends ServiceProcessorUtil implements
 			tokens.put("ChannelId", KotakConstant.CHANNELID);
 			tokens.put("BankId", KotakConstant.BANKID);
 			tokens.put("ServiceReqVersion", KotakConstant.SERVICEREQUESTVERSION);
-			tokens.put("ACCTNO", postingLegList.get("accountNumber"));
+			tokens.put("CUSTID", postingLegList.get("CustID"));
 			MapTokenResolver resolver = new MapTokenResolver(tokens);
 			Reader fileValue = new StringReader(requestTemplate);
 			Reader reader = new TokenReplacingReader(fileValue, resolver);

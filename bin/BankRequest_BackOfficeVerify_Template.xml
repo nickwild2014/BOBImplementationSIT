@@ -4,18 +4,18 @@
 	<Header>
 		<RequestHeader>
 			<MessageKey>
-				<RequestUUID>${RequestUUID}</RequestUUID>
+				<RequestUUID>${requestId}</RequestUUID>
 				<ServiceRequestId>executeFinacleScript</ServiceRequestId>
 				<ServiceRequestVersion>${ServiceReqVersion}</ServiceRequestVersion>
 				<ChannelId>${ChannelId}</ChannelId>
 			</MessageKey>
 			<RequestMessageInfo>
 				<BankId>${BankId}</BankId>
-				<TimeZone />
+				<TimeZone>GMT+05:30</TimeZone>
 				<EntityId />
 				<EntityType />
 				<ArmCorrelationId />
-				<MessageDateTime>${MessageDateTime}</MessageDateTime>
+				<MessageDateTime>${dateTime}</MessageDateTime>
 			</RequestMessageInfo>
 			<Security>
 				<Token>
@@ -30,15 +30,18 @@
 				<RealUserPwd />
 				<SSOTransferToken />
 			</Security>
+			<CustomInfo />
 		</RequestHeader>
 	</Header>
 	<Body>
-		<executeFinacleScriPartTrnRecequest>
+		<executeFinacleScriptRequest>
 			<ExecuteFinacleScriptInputVO>
-				<requestId>Misys_tranExceptionListAPI.scr</requestId>
+				<requestId>FI_CustTF.scr</requestId>
 			</ExecuteFinacleScriptInputVO>
-			<executeFinacleScript_CustomData>${PartTrnRec}
+			<executeFinacleScript_CustomData>
+				<REQUEST_ID>ACCVERIFY</REQUEST_ID>
+				${PartTrnRec}
 			</executeFinacleScript_CustomData>
-		</executeFinacleScriPartTrnRecequest>
+		</executeFinacleScriptRequest>
 	</Body>
 </FIXML>

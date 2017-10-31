@@ -19,7 +19,6 @@ import java.util.Random;
 
 import org.apache.log4j.Logger;
 
-import com.bs.theme.bob.digitalsign.DigitalSignature;
 import com.bs.themebridge.util.DatabaseUtility;
 import com.bs.themebridge.util.DateTimeUtil;
 import com.bs.themebridge.util.ThemeBridgeUtil;

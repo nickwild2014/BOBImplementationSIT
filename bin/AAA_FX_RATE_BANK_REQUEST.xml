@@ -8,29 +8,29 @@
 				<ServiceRequestId>executeFinacleScript</ServiceRequestId>
 				<ServiceRequestVersion>${ServiceReqVersion}</ServiceRequestVersion>
 				<ChannelId>${ChannelId}</ChannelId>
+				<LanguageId></LanguageId>
 			</MessageKey>
 			<RequestMessageInfo>
 				<BankId>${BankId}</BankId>
 				<TimeZone>GMT+05:30</TimeZone>
-				<EntityId />
-				<EntityType />
-				<ArmCorrelationId />
+				<EntityId></EntityId>
+				<EntityType></EntityType>
+				<ArmCorrelationId></ArmCorrelationId>
 				<MessageDateTime>${dateTime}</MessageDateTime>
 			</RequestMessageInfo>
 			<Security>
 				<Token>
 					<PasswordToken>
-						<UserId />
-						<Password />
+						<UserId></UserId>
+						<Password></Password>
 					</PasswordToken>
 				</Token>
-				<FICertToken />
-				<RealUserLoginSessionId />
-				<RealUser />
-				<RealUserPwd />
-				<SSOTransferToken />
+				<FICertToken></FICertToken>
+				<RealUserLoginSessionId></RealUserLoginSessionId>
+				<RealUser></RealUser>
+				<RealUserPwd></RealUserPwd>
+				<SSOTransferToken></SSOTransferToken>
 			</Security>
-			<CustomInfo />
 		</RequestHeader>
 	</Header>
 	<Body>
@@ -39,8 +39,11 @@
 				<requestId>FI_CustTF.scr</requestId>
 			</ExecuteFinacleScriptInputVO>
 			<executeFinacleScript_CustomData>
-				<REQUEST_ID>ACCVERIFY</REQUEST_ID>
-				${PartTrnRec}
+				<ToCrncy>${ToCrncy}</ToCrncy>
+				<RateCode>${RateCode}</RateCode>
+				<TxnAmount>${TxnAmount}</TxnAmount>
+				<REQUEST_ID>RATECONV</REQUEST_ID>
+				<FromCrncy>${FromCrncy}</FromCrncy>
 			</executeFinacleScript_CustomData>
 		</executeFinacleScriptRequest>
 	</Body>

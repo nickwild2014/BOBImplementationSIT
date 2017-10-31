@@ -305,31 +305,25 @@ public class AccountAccountSearchAdapteeInternal extends ServiceProcessorUtil im
 		String shortName = "";
 		if (mapList.get("ShortName") != null)
 			shortName = mapList.get("ShortName");
-
 		String category = "";
 		if (mapList.get("Branch") != null)
 			category = mapList.get("Branch");
-
 		masterReference = customer;
-//		String accSearchQuery = "SELECT trim(BRCH_MNM) as BRCH_MNM, trim(CUS_MNM) CUS_MNM, trim(ACC_TYPE) ACC_TYPE, trim(CATEGORY) CATEGORY, trim(CURRENCY) CURRENCY, trim(SHORTNAME) SHORTNAME, trim(BO_ACCTNO) BO_ACCTNO, trim(EXT_ACCTNO) EXT_ACCTNO, trim(IBAN) IBAN FROM ACCOUNT WHERE BRCH_MNM  LIKE '%"
-//				+ branch + "%' and CUS_MNM like '%" + customer + "%' and ACC_TYPE like '%" + accType
-//				+ "%' and CURRENCY like '%" + currency + "%' and BO_ACCTNO like '%" + boAccountNumber
-//				+ "%' and SHORTNAME like '%" + shortName + "%' ";
-		
-		String accSearchQuery = "SELECT trim(BRCH_MNM) as BRCH_MNM, trim(CUS_MNM) CUS_MNM, trim(ACC_TYPE) ACC_TYPE, trim(CATEGORY) CATEGORY, trim(CURRENCY) CURRENCY, trim(SHORTNAME) SHORTNAME, trim(BO_ACCTNO) BO_ACCTNO, trim(EXT_ACCTNO) EXT_ACCTNO, trim(IBAN) IBAN FROM ACCOUNT WHERE BRCH_MNM  LIKE '%1368%'  and CUS_MNM like '%72765118%' and ACC_TYPE like '%CA%' and CURRENCY like '%INR%' and BO_ACCTNO like '%BO-1368-72765118-CA-INR-3%' and SHORTNAME like '%AADI DIAMONDS A%'";
+		String accSearchQuery = "SELECT trim(BRCH_MNM) as BRCH_MNM, trim(CUS_MNM) CUS_MNM, trim(ACC_TYPE) ACC_TYPE, trim(CATEGORY) CATEGORY, trim(CURRENCY) CURRENCY, trim(SHORTNAME) SHORTNAME, trim(BO_ACCTNO) BO_ACCTNO, trim(EXT_ACCTNO) EXT_ACCTNO, trim(IBAN) IBAN FROM ACCOUNT WHERE BRCH_MNM  LIKE '%"
+				+ branch + "%' and CUS_MNM like '%" + customer + "%' and ACC_TYPE like '%" + accType
+				+ "%' and CURRENCY like '%" + currency + "%' and BO_ACCTNO like '%" + boAccountNumber
+				+ "%' and SHORTNAME like '%" + shortName + "%' ";
+		//String accSearchQuery = "SELECT trim(BRCH_MNM) as BRCH_MNM, trim(CUS_MNM) CUS_MNM, trim(ACC_TYPE) ACC_TYPE, trim(CATEGORY) CATEGORY, trim(CURRENCY) CURRENCY, trim(SHORTNAME) SHORTNAME, trim(BO_ACCTNO) BO_ACCTNO, trim(EXT_ACCTNO) EXT_ACCTNO, trim(IBAN) IBAN FROM ACCOUNT WHERE BRCH_MNM  LIKE '%1368%'  and CUS_MNM like '%72765118%' and ACC_TYPE like '%CA%' and CURRENCY like '%INR%' and BO_ACCTNO like '%BO-1368-72765118-CA-INR-3%' and SHORTNAME like '%AADI DIAMONDS A%'";
 		// + " and CATEGORY like '%" + category + "%' ";
 		System.out.println("SwiftDetails : " + accSearchQuery);
-
 		// String whereClause = " where ";
 		// if (mapList.get("Branch") != null) {
 		// whereClause = whereClause + mapList.get("Branch");
 		// }
-
 		try {
 			con = DatabaseUtility.getTizoneConnection();
 			ps = con.prepareStatement(accSearchQuery);
 			res = ps.executeQuery();
-
 			while (res.next()) {
 				HashMap<String, String> accountDataMap = new HashMap<String, String>();
 				accountDataMap.put("BRCH_MNM", res.getString("BRCH_MNM"));
@@ -343,7 +337,6 @@ public class AccountAccountSearchAdapteeInternal extends ServiceProcessorUtil im
 				accountDataMap.put("IBAN", res.getString("IBAN"));
 				accountDataMapList.add(accountDataMap);
 			}
-
 		} catch (SQLException e) {
 			System.out.println("SQLException..! " + e.getMessage());
 			e.printStackTrace();
@@ -351,7 +344,6 @@ public class AccountAccountSearchAdapteeInternal extends ServiceProcessorUtil im
 		} finally {
 			DatabaseUtility.surrenderPrepdConnection(con, ps, res);
 		}
-
 		// System.out.println("accountDataMapList : " + accountDataMapList);
 		return accountDataMapList;
 	}

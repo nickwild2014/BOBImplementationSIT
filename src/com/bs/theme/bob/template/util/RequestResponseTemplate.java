@@ -24,6 +24,8 @@ public class RequestResponseTemplate {
 	public static String BACK_OFFICE_POSTING_BANK_REQUEST_TEMPLATE = "BankRequest_BackOfficePosting_Template.xml";
 	public static String CUSTOMER_DETAILS_TEMPLATE ="AAABankRequest_CustomerDetails_Template.xml";
 	public static String ACCOUNT_DETAILS_TEMPLATE ="AAA_AccountDetail_FINACLE_REQUEST.xml";
+	public static String FX_RATE_TEMPLATE ="AAA_FX_RATE_BANK_REQUEST.xml";
+	public static String ACCOUNT_DETAILS_USING_CUSTID_TEMPLATE = "AAA_AccountSearchBankRequestUsingCUSTID.xml";
 	public static String BACKOFFICE_VERIFY_BANK_REQUEST_TEMPLATE = "BankRequest_BackOfficeVerify_Template.xml";
 
 	public static String CUSTOMER_ACCOUNT_ENQUIRY_BANK_REQUEST_TEMPLATE = "BankRequest_Cust_Account_Enquiry_Template.xml";
@@ -37,6 +39,8 @@ public class RequestResponseTemplate {
 	public static String CUSTOMER_SEARCH_TI_RESPONSE_TEMPLATE ="AAACustomer.CustomerSearch-TI RESPONSE.xml";
 	public static String ACCOUNT_DETAILS_TI_RESPONSE_TEMPLATE ="AAA_Account.AccountDetails-TI RESPONSE.xml";
 	public static String ACCOUNT_SEARCH_TI_RESPONSE_TEMPLATE ="AAA_Account.AccountSearch-TI RESPONSE.xml";
+	public static String FX_RATE_TI_RESPONSE_TEMPLATE ="AAA_BusinessSupport.FXRateServiceTI_RESPONSE.xml";
+	public static String ACCOUNT_SEARCH_USING_CUSTID_TI_RESPONSE_TEMPLATE ="AAA_Account.AccountSearchUsingCUSTID-TI RESPONSE.xml";
 	public static String LIMIT_FACILITIES_TI_RESPONSE_TEMPLATE = "TIResponse_LimitFacilities_Template.xml";
 	public static String LIMIT_RESERVATIONS_TI_RESPONSE_TEMPLATE = "TIResponse_LimitReservations_Template.xml";
 	public static String LIMIT_NODE_FACILITIES_BANK_RESPONSE_TEMPLATE = "TIResponse_LimitNodeFacilities_Template.xml";
