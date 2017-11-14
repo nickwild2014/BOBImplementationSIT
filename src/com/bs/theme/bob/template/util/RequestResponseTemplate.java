@@ -10,7 +10,8 @@ public class RequestResponseTemplate {
 	public static String LIMIT_NODE_FACILITIES_BANK_REQUEST_TEMPLATE = "BankRequest_LimitNodeFacilities_Template.xml";
 	public static String LIMIT_RESERVATIONS_BANK_REQUEST_TEMPLATE = "BankRequest_LimitReservations_Template.xml";
 	public static String LIMIT_RESERVATIONS_REVERSAL_BANK_REQUEST_TEMPLATE = "BankRequest_LimitReservationsReversal_Template.xml";
-	public static String LIMIT_EXPOSURE_RESERVATIONS_BANK_REQUEST_TEMPLATE = "BankRequest_LimitExposure_Reservations_Template.xml";
+	//public static String LIMIT_EXPOSURE_RESERVATIONS_BANK_REQUEST_TEMPLATE = "BankRequest_LimitExposure_Reservations_Template.xml";
+	public static String LIMIT_EXPOSURE_RESERVATIONS_BANK_REQUEST_TEMPLATE = "AAA_LimitUtilization_Req.xml";
 	public static String LIMIT_EXPOSURE_REVERSAL_BANK_REQUEST_TEMPLATE = "BankRequest_LimitExposure_Reversal_Template.xml";
 	public static String LIMIT_FACILITIES_BANK_REQUEST_TEMPLATE = "BankRequest_LimitFacilities_Template.xml";
 	public static String LIMIT_FACILITIES_CRN_BANK_REQUEST_TEMPLATE = "BankRequest_LimitFacilities_CRN_Template.xml";

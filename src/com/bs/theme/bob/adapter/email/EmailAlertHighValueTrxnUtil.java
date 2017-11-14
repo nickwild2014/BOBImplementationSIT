@@ -63,10 +63,10 @@ public class EmailAlertHighValueTrxnUtil {
 		// Reduce Time consuming
 		Thread thread = new Thread() {
 			public void run() {
-				boolean status = processHighValueTrxn2(service, operation, zone, branch, sourceSys, targetSys,
-						aMasterReference, aEventref, user, stepId, stepStatus, productlongname, eventlongname,
-						customerMnemonicName, trxnAmount);
-				logger.debug("EmailAlert-HighValueTrxn : " + status);
+//				boolean status = processHighValueTrxn2(service, operation, zone, branch, sourceSys, targetSys,
+//						aMasterReference, aEventref, user, stepId, stepStatus, productlongname, eventlongname,
+//						customerMnemonicName, trxnAmount);
+//				logger.debug("EmailAlert-HighValueTrxn : " + status);
 			}
 		};
 		thread.start();

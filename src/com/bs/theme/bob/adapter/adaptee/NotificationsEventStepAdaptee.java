@@ -181,18 +181,18 @@ public class NotificationsEventStepAdaptee extends ServiceProcessorUtil implemen
 						&& (stepStatus.equalsIgnoreCase("Completed") || stepStatus.equalsIgnoreCase("Rejected")
 								|| stepStatus.equalsIgnoreCase("Aborted"))) {
 					// TODO
-					FXDealUtilization fXDealUtilObj = new FXDealUtilization();
-					String processResult = fXDealUtilObj.processRETDealRef(stepId, stepStatus, aMasterReference,
-							aEventref); // IV
-					bankRequest = bankRequest + ", " + " FXDeal : " + processResult;
+					//FXDealUtilization fXDealUtilObj = new FXDealUtilization();
+					//String processResult = fXDealUtilObj.processRETDealRef(stepId, stepStatus, aMasterReference,
+						//	aEventref); // IV
+					//bankRequest = bankRequest + ", " + " FXDeal : " + processResult;
 				}
 
 				/** 2.CheckList records delete from Table **/
 				boolean deleteCheckListDataStatus = false;
 				if (stepStatus.equalsIgnoreCase("Aborted")) {
 					// logger.debug("CheckListData Deleting initiated");
-					deleteCheckListDataStatus = CheckListDataUtil.processCheckListData(stepId, stepStatus,
-							aMasterReference, aEventref);
+					//deleteCheckListDataStatus = CheckListDataUtil.processCheckListData(stepId, stepStatus,
+						//	aMasterReference, aEventref);
 					bankRequest = bankRequest + ", " + " CheckListDataDelete status : " + deleteCheckListDataStatus;
 				}
 

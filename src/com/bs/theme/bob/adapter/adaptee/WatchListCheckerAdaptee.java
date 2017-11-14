@@ -3,8 +3,10 @@ package com.bs.theme.bob.adapter.adaptee;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +14,6 @@ import java.util.Map;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.rpc.ServiceException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.log4j.Logger;
@@ -23,7 +24,6 @@ import org.jdom2.input.SAXBuilder;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.bob.client.finacle.ExternalHttpClient;
 import com.bs.theme.bob.template.util.RequestResponseTemplate;
 import com.bs.themebridge.logging.ServiceLogging;
 import com.bs.themebridge.serverinterface.AdapteeInterface;
@@ -40,6 +40,12 @@ import com.bs.themebridge.util.ValidationsUtil;
 import com.bs.themebridge.xpath.GatewayDocumentsXpath;
 import com.bs.themebridge.xpath.XPathParsing;
 import com.misys.tiplus2.services.control.StatusEnum;
+import com.neteconomy.ArrayOfLong;
+import com.neteconomy.AuthenticationHeader;
+import com.neteconomy.EraseResponse;
+import com.neteconomy.FinancialCrimeManager;
+import com.neteconomy.FinancialCrimeManagerSoap;
+import com.neteconomy.SequenceHeader;
 import com.test.XmlSpecialCharacterEncoding;
 
 /**
@@ -50,7 +56,6 @@ import com.test.XmlSpecialCharacterEncoding;
  * 
  */
 public class WatchListCheckerAdaptee extends ServiceProcessorUtil implements AdapteeInterface {
-
 	private final static Logger logger = Logger.getLogger(WatchListCheckerAdaptee.class.getName());
 
 	public WatchListCheckerAdaptee(String inputXml)
@@ -60,7 +65,6 @@ public class WatchListCheckerAdaptee extends ServiceProcessorUtil implements Ada
 
 	public WatchListCheckerAdaptee() {
 	}
-
 	private boolean isClean = true;
 	private String branch = "";
 	private String service = "";
@@ -79,7 +83,84 @@ public class WatchListCheckerAdaptee extends ServiceProcessorUtil implements Ada
 	private Timestamp tiResTime = null;
 	private Timestamp bankReqTime = null;
 	private Timestamp bankResTime = null;
+	
+	private String isEJBError ="";
+	FinancialCrimeManager context;
+	FinancialCrimeManagerSoap client;
 
+
+	String Configuration =  "AMLINTFConfig";
+	String Source ="Transactions";
+	String Address = "";
+	String City = "";
+	String BirthDate = "";
+	String Description = "";
+	
+	
+	public String watchListCheckInvoke(String Configuration,String Source,String Name,String Address,String City,String Country,
+			String BirthDate,String Description,String userName,String passWord)
+	{
+		try {
+		AuthenticationHeader AuthenticationHeader = new AuthenticationHeader();
+		AuthenticationHeader.setUser(userName);
+		AuthenticationHeader.setPassword(passWord);
+		
+		ArrayOfLong obj = new ArrayOfLong();
+		SequenceHeader SequenceHeader = new SequenceHeader();
+		SequenceHeader.setReceivedAcknowledgements(obj);
+		SequenceHeader.setReady(false);
+		SequenceHeader.setWait(false);
+		SequenceHeader.setNumber(0l);
+		SequenceHeader.setExpires(DateTimeUtil.getLocalDateInXMLGregorian());
+		
+		context = new FinancialCrimeManager();
+		client = context.getFinancialCrimeManagerSoap();
+		EraseResponse eraseResponse = client.match(Configuration, Source, Name, Address, City, Country, BirthDate, Description);
+		//System.out.println("getMessage "+eraseResponse.getMessage());
+		System.out.println("getResult "+eraseResponse.getResult());
+		bankResponse = eraseResponse.getResult();
+		bankResTime = DateTimeUtil.getSqlLocalDateTime();
+		return eraseResponse.getResult();
+		}
+		catch(Exception ex)
+		{
+			bankResponse = getStringFromStackTrace(ex);
+			bankResTime = DateTimeUtil.getSqlLocalDateTime();
+			ex.printStackTrace();
+			return "WatchListService FinancialCrimeManager_UnAvailable [IM]";
+		}
+		
+		
+	}
+	
+	 public static String getStringFromStackTrace(Throwable ex)
+	  {
+	      if (ex==null)
+	      {
+	          return "";
+	      }
+	      StringWriter str = new StringWriter();
+	      PrintWriter writer = new PrintWriter(str);
+	      try
+	      {
+	          ex.printStackTrace(writer);
+	          return str.getBuffer().toString();
+	      }
+	      finally
+	      {
+	          try
+	          {
+	              str.close();
+	              writer.close();
+	          }
+	          catch (IOException e)
+	          {
+	              //ignore
+	          }
+	      }
+	  }
+	
+	
 	/**
 	 * <p>
 	 * Process the Watchlist checker Service XML from the TI
@@ -90,8 +171,7 @@ public class WatchListCheckerAdaptee extends ServiceProcessorUtil implements Ada
 	 * @throws SAXException
 	 * @throws IOException
 	 */
-	public String process(String requestXML)
-			throws ParserConfigurationException, SAXException, IOException, JAXBException, ServiceException {
+	public String process(String requestXML) {
 
 		logger.info(" ************ NCIF / WatchList / TI-TFWLCRSP adaptee process started ************ ");
 
@@ -109,6 +189,10 @@ public class WatchListCheckerAdaptee extends ServiceProcessorUtil implements Ada
 
 			tiResTime = DateTimeUtil.getSqlLocalDateTime();
 			tiResponse = getTIResponseFromTIRequest(tiRequest);
+			if(tiResponse==null || tiResponse.isEmpty())
+			{
+				tiResponse = isEJBError;
+			}
 			logger.debug("WatchList TI Response:\n" + tiResponse);
 
 			statusEnum = ResponseHeaderUtil.processEJBClientResponse(tiResponse);
@@ -122,14 +206,25 @@ public class WatchListCheckerAdaptee extends ServiceProcessorUtil implements Ada
 		} finally {
 			if (isClean) {
 				// NEW LOGGING
-				boolean res = ServiceLogging.pushLogData(getRequestHeader().getService(),
+				if(statusEnum==null)
+				{
+					statusEnum = StatusEnum.UNAVAILABLE;
+				}
+				System.out.println("getRequestHeader().getService() "+getRequestHeader().getService());
+				System.out.println("getRequestHeader().getOperation() "+getRequestHeader().getOperation());
+				System.out.println("statusEnum.toString() "+statusEnum.toString());
+				ServiceLogging.pushLogData(getRequestHeader().getService(),
 						getRequestHeader().getOperation(), sourceSystem, behalfOfBranch, sourceSystem, targetSystem,
 						masterReference, eventReference, statusEnum.toString(), tiRequest, tiResponse, bankRequest,
 						bankResponse, tiReqTime, bankReqTime, bankResTime, tiResTime, "", "", "", "", false, "0",
 						errorMsg);
 			} else {
 				// NEW LOGGING
-				boolean res = ServiceLogging.pushLogData(getRequestHeader().getService(),
+				if(statusEnum==null)
+				{
+					statusEnum = StatusEnum.UNAVAILABLE;
+				}
+				 ServiceLogging.pushLogData(getRequestHeader().getService(),
 						getRequestHeader().getOperation(), sourceSystem, behalfOfBranch, sourceSystem, targetSystem,
 						masterReference, eventReference, statusEnum.toString(), tiRequest, tiResponse, bankRequest,
 						bankResponse, tiReqTime, bankReqTime, bankResTime, tiResTime, "", "", "", "", false, "0",
@@ -197,7 +292,7 @@ public class WatchListCheckerAdaptee extends ServiceProcessorUtil implements Ada
 		// logger.debug("Entering into doNCIFWatchListProcess : ");
 
 		Map<String, String> ncifRequestList = new HashMap<String, String>();
-		Map<String, String> ncifResponseList = new HashMap<String, String>();
+		String ncifResponseList = "";
 		try {
 			correlationId = XPathParsing.getValue(requestXML, GatewayDocumentsXpath.CorrelationId);
 			operation = XPathParsing.getValue(requestXML, GatewayDocumentsXpath.Operation);
@@ -217,10 +312,9 @@ public class WatchListCheckerAdaptee extends ServiceProcessorUtil implements Ada
 			ncifResponseList = getNCIFBankResponse(ncifRequestList);
 			logger.debug("ncifResponseList : " + ncifResponseList);
 
-			if (ncifResponseList != null)
-				requestXML = getTIRequestFromBankResponse(ncifResponseList);
-			else
-				requestXML = getFailedTIRequest();
+			//if (ncifResponseList != null)
+				requestXML = getTIRequestFromBankResponse(ncifResponseList,ncifRequestList);
+			//else requestXML = getFailedTIRequest();
 
 		} catch (XPathExpressionException e) {
 			logger.error("Exceptions!!! " + e.getMessage());
@@ -250,18 +344,21 @@ public class WatchListCheckerAdaptee extends ServiceProcessorUtil implements Ada
 			result = TIPlusEJBClient.process(tiEJBRequest);
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			logger.error("WatchList EJB exceptions!", e);
-			result = "";
+			isEJBError = getStringFromStackTrace(e);
+			result = null;
 		}
 		return result;
 	}
 
 	/**
 	 * 
+	 * @param ncifRequestList 
 	 * @param bankResponse
 	 * @return
 	 */
-	private String getTIRequestFromBankResponse(Map<String, String> ncifResponseList) {
+	private String getTIRequestFromBankResponse(String ncifResponse, Map<String, String> ncifRequestList) {
 
 		String result = "";
 		// logger.debug("ncifResponseList : " + ncifResponseList);
@@ -284,7 +381,7 @@ public class WatchListCheckerAdaptee extends ServiceProcessorUtil implements Ada
 			tokens.put("EventReference", eventReference);
 			tokens.put("WatchListCheckerRef", eventReference);
 
-			Map<String, String> responseParser = ncifResponseParser(ncifResponseList);
+			Map<String, String> responseParser = ncifResponseParser(ncifResponse,ncifRequestList);
 
 			if (responseParser != null) {
 				tokens.put("Status", responseParser.get("Status"));
@@ -324,120 +421,90 @@ public class WatchListCheckerAdaptee extends ServiceProcessorUtil implements Ada
 	 *            for WatchList
 	 * @return
 	 */
-	private String getFailedTIRequest() {
-
-		// logger.info("Enter into getFailedTIRequest....!");
-		String result = "";
-		try {
-			InputStream anInputStream = WatchListCheckerAdaptee.class.getClassLoader()
-					.getResourceAsStream(RequestResponseTemplate.TI_WATCHLIST_REQUEST_TEMPLATE);
-			String watchListTemplate = ThemeBridgeUtil.readFile(anInputStream);
-			// logger.debug("swiftInTiRequestTemplate : "
-			// + swiftInTiRequestTemplate);
-			String correlationId = ThemeBridgeUtil.randomCorrelationId();
-			Map<String, String> tokens = new HashMap<String, String>();
-			tokens.put("CorrelationId", correlationId);
-			tokens.put("Name", ConfigurationUtil.getValueFromKey("SwiftInUser"));
-			tokens.put("targetSystem", ConfigurationUtil.getValueFromKey("TIZONEID"));// ZONEID
-			tokens.put("Branch", behalfOfBranch);
-			tokens.put("OurReference", masterReference);
-			tokens.put("TheirReference", masterReference);
-			tokens.put("BehalfOfBranch", behalfOfBranch);
-			tokens.put("MasterRef", masterReference);
-			tokens.put("EventReference", eventReference);
-			tokens.put("WatchListCheckerRef", eventReference);
-			tokens.put("Status", "F");
-
-			StringBuilder failedFiled = new StringBuilder();
-			failedFiled.append("<ns2:FailedField>");
-			failedFiled.append("<ns2:Code>Service Unavailable</ns2:Code>");
-			failedFiled.append("<ns2:Reason>Bank NCIF Service not Available[IM]</ns2:Reason>");
-			failedFiled.append("</ns2:FailedField>");
-
-			tokens.put("FailedFields", failedFiled.toString());
-
-			MapTokenResolver resolver = new MapTokenResolver(tokens);
-			Reader fileValue = new StringReader(watchListTemplate);
-			Reader reader = new TokenReplacingReader(fileValue, resolver);
-			result = reader.toString();
-			reader.close();
-			// logger.debug("Before Removed empty tag : \n" + result);
-
-			result = CSVToMapping.RemoveEmptyTagXML(result);
-			// logger.debug("After Removed empty tag : \n" + result);
-
-		} catch (IOException e) {
-			logger.error("TI Request exceptions! " + e.getMessage());
-			e.printStackTrace();
-
-		}
-		return result;
-	}
+//	private String getFailedTIRequest() {
+//
+//		// logger.info("Enter into getFailedTIRequest....!");
+//		String result = "";
+//		try {
+//			InputStream anInputStream = WatchListCheckerAdaptee.class.getClassLoader()
+//					.getResourceAsStream(RequestResponseTemplate.TI_WATCHLIST_REQUEST_TEMPLATE);
+//			String watchListTemplate = ThemeBridgeUtil.readFile(anInputStream);
+//			// logger.debug("swiftInTiRequestTemplate : "
+//			// + swiftInTiRequestTemplate);
+//			String correlationId = ThemeBridgeUtil.randomCorrelationId();
+//			Map<String, String> tokens = new HashMap<String, String>();
+//			tokens.put("CorrelationId", correlationId);
+//			tokens.put("Name", ConfigurationUtil.getValueFromKey("SwiftInUser"));
+//			tokens.put("targetSystem", ConfigurationUtil.getValueFromKey("TIZONEID"));// ZONEID
+//			tokens.put("Branch", behalfOfBranch);
+//			tokens.put("OurReference", masterReference);
+//			tokens.put("TheirReference", masterReference);
+//			tokens.put("BehalfOfBranch", behalfOfBranch);
+//			tokens.put("MasterRef", masterReference);
+//			tokens.put("EventReference", eventReference);
+//			tokens.put("WatchListCheckerRef", eventReference);
+//			tokens.put("Status", "F");
+//
+//			StringBuilder failedFiled = new StringBuilder();
+//			failedFiled.append("<ns2:FailedField>");
+//			failedFiled.append("<ns2:Code>Service Unavailable</ns2:Code>");
+//			failedFiled.append("<ns2:Reason>Bank NCIF Service not Available[IM]</ns2:Reason>");
+//			failedFiled.append("</ns2:FailedField>");
+//
+//			tokens.put("FailedFields", failedFiled.toString());
+//
+//			MapTokenResolver resolver = new MapTokenResolver(tokens);
+//			Reader fileValue = new StringReader(watchListTemplate);
+//			Reader reader = new TokenReplacingReader(fileValue, resolver);
+//			result = reader.toString();
+//			reader.close();
+//			// logger.debug("Before Removed empty tag : \n" + result);
+//
+//			result = CSVToMapping.RemoveEmptyTagXML(result);
+//			// logger.debug("After Removed empty tag : \n" + result);
+//
+//		} catch (IOException e) {
+//			logger.error("TI Request exceptions! " + e.getMessage());
+//			e.printStackTrace();
+//
+//		}
+//		return result;
+//	}
 
 	/**
 	 * 
 	 * @param ncifNameList
 	 * @return
 	 */
-	private Map<String, String> getNCIFBankResponse(Map<String, String> ncifNameList) {
+	private String getNCIFBankResponse(Map<String, String> ncifNameList) {
 
 		// logger.info("Enter into the generateNCIFBankRequest method");
-		Map<String, String> tokens = new HashMap<String, String>();
-
-		Map<String, String> finalBankResponse = new HashMap<String, String>();
+		String finalBankResponse = "";
 		Reader reader = null;
 		try {
-			String httpClientUrl = ConfigurationUtil.getValueFromKey("WatchListUrl");
-			// logger.debug("WatchListUrl : " + httpClientUrl);
-
-			InputStream anInputStream = AccountAvailBalAdaptee.class.getClassLoader()
-					.getResourceAsStream(RequestResponseTemplate.NCIF_BANK_REQUEST_TEMPLATE);
-			String requestTemplate = ThemeBridgeUtil.readFile(anInputStream);
+//			String httpClientUrl = ConfigurationUtil.getValueFromKey("WatchListUrl");
+//			logger.debug("WatchListUrl : " + httpClientUrl);
+//
+//			InputStream anInputStream = AccountAvailBalAdaptee.class.getClassLoader()
+//					.getResourceAsStream(RequestResponseTemplate.NCIF_BANK_REQUEST_TEMPLATE);
+//			String requestTemplate = ThemeBridgeUtil.readFile(anInputStream);
 
 			if (ncifNameList != null && ncifNameList.size() > 0) {
-				for (Map.Entry<String, String> name : ncifNameList.entrySet()) {
-					// TODO Validate empty string
-					if (ValidationsUtil.isValidString(name.getValue())) {
-						if (!name.getKey().equalsIgnoreCase("MasterReference")
-								&& !name.getKey().equalsIgnoreCase("EventReference")
-								&& !name.getKey().equalsIgnoreCase("BehalfofBranch")) {
-							// logger.debug("valid String " + name.getKey());
+				//ncifNameList
 
-							/*********************/
-							tokens.put("P_FULL_NAME", name.getValue());
+//				System.out.println(ncifNameList.get("PrincipalCountryName"));
+//				System.out.println(ncifNameList.get("PrincipalNameAndAddress"));
+//				System.out.println(ncifNameList.get("ReceivedFromBank"));
+//				System.out.println(ncifNameList.get("BeneficiaryCountryName"));
+//				System.out.println(ncifNameList.get("BeneficiaryNameAndAddress"));
+				
+				String userName = ConfigurationUtil.getValueFromKey("WatchListFinUserName");
+				String passWord =ConfigurationUtil.getValueFromKey("WatchListFinPassWord");
+				String Configuration = ConfigurationUtil.getValueFromKey("AmlWLCConfiguration");
 
-							MapTokenResolver resolver = new MapTokenResolver(tokens);
-							Reader fileValue = new StringReader(requestTemplate);
-							reader = new TokenReplacingReader(fileValue, resolver);
-							String ncifRequest = reader.toString();
-							logger.debug("NcifRequest : \n" + ncifRequest);
-							bankReqTime = DateTimeUtil.getSqlLocalDateTime();
-
-							String status = "SUCCEEDED";
-							String ncifResponse = "";
-							try {
-								ncifResponse = ExternalHttpClient.postXML(ncifRequest, httpClientUrl);
-
-							} catch (Exception e) {
-								e.getMessage();
-								status = "FAILED";
-							}
-							bankResTime = DateTimeUtil.getSqlLocalDateTime();
-							logger.debug("NcifResponse : " + ncifResponse);
-
-							if (!ValidationsUtil.isValidString(ncifResponse))
-								return null;
-
-							finalBankResponse.put(name.getKey() + "~" + name.getValue(), ncifResponse);
-							bankResponse = bankResponse + "\n" + name.getKey() + ">>-->> " + name.getValue() + "\t\t : "
-									+ ncifResponse;
-
-						} else {
-							logger.debug("Not valid String " + name.getKey() + "\t" + name.getValue());
-						}
-					}
-
-				}
+				finalBankResponse = watchListCheckInvoke( Configuration, Source, ncifNameList.get("BeneficiaryNameAndAddress"),
+		ncifNameList.get("PrincipalNameAndAddress"), City, ncifNameList.get("BeneficiaryCountryName"),
+			 BirthDate, Description, userName, passWord);
 
 			}
 		} catch (Exception e) {
@@ -460,42 +527,45 @@ public class WatchListCheckerAdaptee extends ServiceProcessorUtil implements Ada
 	}
 
 	/**
-	 * 
+	 *
 	 * @param ncifResult
+	 * @param ncifRequestList 
 	 * @return
 	 */
-	private static Map<String, String> ncifResponseParser(Map<String, String> ncifResult) {
+/////////////////////////////////////////////////////////////////////////
+	private static Map<String, String> ncifResponseParser(String ncifResult, Map<String, String> ncifRequestList) {
 
 		// logger.debug("Enter into the ncifResponseParser method");
 		Map<String, String> parserResult = new HashMap<String, String>();
 		StringBuilder failedFiled = new StringBuilder();
 		boolean status = true;
-		String result = "";
-		for (Map.Entry<String, String> ncif : ncifResult.entrySet()) {
+		String result = ncifResult;
+		
+//		System.out.println(ncifRequestList.get("PrincipalCountryName"));
+//		System.out.println(ncifRequestList.get("PrincipalNameAndAddress"));
+//		System.out.println(ncifRequestList.get("ReceivedFromBank"));
+//		System.out.println(ncifRequestList.get("BeneficiaryCountryName"));
+//		System.out.println(ncifRequestList.get("BeneficiaryNameAndAddress"));
+		
+		if(result!=null && result.contains("FinancialCrimeManager_UnAvailable"))
+		{
+			status = false;
+			failedFiled.append("<ns2:FailedField>");
+			failedFiled.append("<ns2:Code>" + "FinancialCrimeManager" + "</ns2:Code>");
+			failedFiled
+					.append("<ns2:Reason>FinancialCrimeManager UnAvailable</ns2:Reason>");
+			failedFiled.append("</ns2:FailedField>");
+		}
 
-			if (ValidationsUtil.isValidString(ncif.getValue()) && ncif.getValue().contains("Return value:")) {
-				result = ncif.getValue().substring(ncif.getValue().indexOf(":") + 1, ncif.getValue().length()).trim();
-			} else {
-				result = ncif.getValue();
-			}
-			logger.debug("Watclist response for " + ncif.getKey() + " is " + result);
-
-			String[] ncifKeypair = ncif.getKey().split("~");
-			String keyName = ncifKeypair[0];
-			String searchName = ncifKeypair[1];
-
-			// If Y -> not present
-			// else is present
-			if (result.equalsIgnoreCase("Y")) {
+		else if (result!=null && !result.isEmpty() ) {
 				status = false;
 				failedFiled.append("<ns2:FailedField>");
-				failedFiled.append("<ns2:Code>" + keyName + "-" + searchName + "</ns2:Code>");
+				failedFiled.append("<ns2:Code>" + "GateWay Beneficiary Details" + "</ns2:Code>");
 				failedFiled
-						.append("<ns2:Reason>This name " + searchName + " found in the Bank NCIF List.</ns2:Reason>");
+						.append("<ns2:Reason>Some Gateway Beneficiary Details found in the Bank NCIF List.</ns2:Reason>");
 				failedFiled.append("</ns2:FailedField>");
 			}
-			// }
-		}
+		
 
 		if (status) {
 			parserResult.put("Status", "P");
@@ -513,9 +583,11 @@ public class WatchListCheckerAdaptee extends ServiceProcessorUtil implements Ada
 
 		String requestXML = null;
 		try {
-			requestXML = ThemeBridgeUtil.readFile("C:\\Users\\KXT51472\\Desktop\\Garbage\\NCIF123LT.xml");
+			requestXML = ThemeBridgeUtil.readFile("C:\\Users\\subhash\\Desktop\\WatchListTIRequest.xml");
+			
+			logger.info(requestXML);
 			// logger.debug(requestXML);
-			WatchListCheckerAdaptee aWL = new WatchListCheckerAdaptee();
+			WatchListCheckerAdaptee aWL = new WatchListCheckerAdaptee(requestXML);
 			aWL.process(requestXML);
 
 			// getWatchListMap(requestXML);

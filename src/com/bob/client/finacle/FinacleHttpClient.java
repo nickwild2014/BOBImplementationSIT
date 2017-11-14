@@ -130,6 +130,6 @@ public class FinacleHttpClient {
 	}
 
 	public static void main(String[] args) {
-
+System.out.println(ConfigurationUtil.getValueFromKey("FinacleHttpClientUrl"));
 	}
 }

@@ -77,7 +77,7 @@ public class BusinessSupportFXRateServiceInternal extends ServiceProcessorUtil i
 				+ "OR deal.VERSION#SUPERSEDED# IS NULL) AND c.NUM#=0 AND c.OWNER=LEG.ID AND REQUIREMENT.MAKER_REFERENCE = "+dealTicketId+" ) "
 				+ "ORDER BY DEAL.GID_ID";
 		try {
-			con = DatabaseUtility.getTresuryConnection();
+			con = DatabaseUtility.getTreasuryConnection();
 			ps = con.prepareStatement(tresuryQuery);
 			res = ps.executeQuery();
 			while (res.next()) {

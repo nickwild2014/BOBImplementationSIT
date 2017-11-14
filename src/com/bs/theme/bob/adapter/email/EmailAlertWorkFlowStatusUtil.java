@@ -119,9 +119,9 @@ public class EmailAlertWorkFlowStatusUtil {
 		// Reduce Time consuming
 		Thread thread = new Thread() {
 			public void run() {
-				boolean status = sendWorkFlowAlertMail2(service, operation, zone, branch, sourceSys, targetSys,
-						masterReference, eventReference, user, stepId, stepStatus, productlongname, eventlongname,
-						customerMnemonicName);
+//				boolean status = sendWorkFlowAlertMail2(service, operation, zone, branch, sourceSys, targetSys,
+//						masterReference, eventReference, user, stepId, stepStatus, productlongname, eventlongname,
+//						customerMnemonicName);
 				// logger.debug("EmailAlert-WorkFlowTrxn : " + status);
 			}
 		};

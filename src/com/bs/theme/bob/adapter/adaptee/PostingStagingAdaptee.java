@@ -15,6 +15,7 @@ import com.bs.theme.bob.adapter.email.GatewayEmailAdapteeStaging;
 import com.bs.themebridge.entity.model.Postingstaging;
 import com.bs.themebridge.logging.PostingStagingLogging;
 import com.bs.themebridge.util.DatabaseUtility;
+import com.bs.themebridge.util.ThemeBridgeUtil;
 import com.bs.themebridge.util.ValidationsUtil;
 import com.bs.themebridge.xpath.XPathParsing;
 
@@ -24,14 +25,28 @@ public class PostingStagingAdaptee {
 
 	final static PostingStagingAdaptee POSTSTAGOBJ = new PostingStagingAdaptee();
 	public static final String STATUS_XPATH = "/ServiceResponse/ResponseHeader/Status";
-	public static final String QUEUED_STAGING_QUERY = "SELECT * FROM POSTINGSTAGING WHERE PROCESSTIME >= SYSDATE-1 and PROCESSTIME <= SYSDATE-(1/(24*60)) and STATUS = 'QUEUED' ";
+	//public static final String QUEUED_STAGING_QUERY = "SELECT * FROM POSTINGSTAGING WHERE PROCESSTIME >= SYSDATE-1 and PROCESSTIME <= SYSDATE-(1/(24*60)) and STATUS = 'QUEUED' ";
+	public static final String QUEUED_STAGING_QUERY = "SELECT * FROM POSTINGSTAGING WHERE STATUS = 'QUEUED'";
 	public static final String POSTING_STATUS_QUERY = "SELECT COUNT(*) AS FAILED FROM TRANSACTIONLOG WHERE MASTERREFERENCE=? AND EVENTREFERENCE=? AND SERVICE='BackOffice' AND OPERATION='Batch' AND STATUS='FAILED' AND PROCESSTIME >= SYSDATE-1";
 
 	public static void main(String a[]) throws Exception {
-		PostingStagingAdaptee obj = new PostingStagingAdaptee();
-		obj.process();
-		// List<Postingstaging> s = obj.getStagingQueueDetails();
-		// System.out.println(s.size());
+		//PostingStagingAdaptee obj = new PostingStagingAdaptee();
+		//obj.process();
+
+		String swiftMessage = ThemeBridgeUtil.readFile("C:\\Users\\subhash\\Desktop\\SwiftMessage.txt");
+		List<Postingstaging> stagingList = new ArrayList<Postingstaging>();
+		Postingstaging aPostingstaging = new Postingstaging();
+
+			aPostingstaging.setService("SWIFT");
+			aPostingstaging.setOperation("SwiftOut");
+			aPostingstaging.setMasterreference("ILC/1/17/1273");
+			aPostingstaging.setEventreference("ISS001");
+			aPostingstaging.setStatus("QUEUED");
+			aPostingstaging.setTirequest(swiftMessage);
+			stagingList.add(aPostingstaging);
+			PostingStagingAdaptee.checkStagingPostingStatus(stagingList);
+
+		
 	}
 
 	public boolean process() {
@@ -40,17 +55,21 @@ public class PostingStagingAdaptee {
 		// logger.debug("PostingStaging ListSize -->" + stagingList.size());
 
 		if (stagingList.size() > 0)
+		{
 			PostingStagingAdaptee.checkStagingPostingStatus(stagingList);
-		// else {
-		// logger.debug("Posting Staging list empty...!");
-		// }
+		logger.debug("Posting Staging list getting process...!");
+		}
+		 else {
+		 logger.debug("Posting Staging list empty...!");
+		 logger.info("Posting Staging list empty...!");
+		 }
 
 		return true;
 	}
 
 	public static synchronized void checkStagingPostingStatus(List<Postingstaging> stagingList) {
 		synchronized (POSTSTAGOBJ) {
-			// logger.debug("Enter into checkStagingPostingStatus method...");
+			logger.debug("Enter into checkStagingPostingStatus method...");
 			try {
 				for (final Postingstaging aPostingstaging : stagingList) {
 					String masterRef = aPostingstaging.getMasterreference().trim();
@@ -59,11 +78,24 @@ public class PostingStagingAdaptee {
 					String operation = aPostingstaging.getOperation().trim();
 					String status = aPostingstaging.getStatus().trim();
 					String tiRequest = aPostingstaging.getTirequest();
+					//logger.info("Posting Staging masterRef "+ masterRef);
+					//logger.info("Posting Staging eventRef "+eventRef);
+					//logger.info("Posting Staging service "+service);
+					//logger.info("Posting Staging operation "+operation);
+					//logger.info("Posting Staging status"+status);
+					//logger.info("Posting Staging tiRequest "+tiRequest);
 
 					if (ValidationsUtil.isValidString(masterRef) && ValidationsUtil.isValidString(eventRef)
 							&& ValidationsUtil.isValidString(service) && ValidationsUtil.isValidString(operation)
 							&& ValidationsUtil.isValidString(tiRequest) && status.equalsIgnoreCase("QUEUED")) {
-						boolean transactionPostingStatus = checkTransactionPostingStatus(masterRef, eventRef);
+						logger.info("Posting Staging masterRef "+ masterRef);
+						logger.info("Posting Staging eventRef "+eventRef);
+						logger.info("Posting Staging service "+service);
+						logger.info("Posting Staging operation "+operation);
+						logger.info("Posting Staging status"+status);
+						logger.info("Posting Staging tiRequest "+tiRequest);
+						//boolean transactionPostingStatus = checkTransactionPostingStatus(masterRef, eventRef);
+						boolean transactionPostingStatus = true;
 						// logger.debug(masterRef + eventRef + " : " +
 						// transactionPostingStatus + ", service : " + service
 						// + ", operation :>>>" + operation + "<<<");
@@ -71,7 +103,7 @@ public class PostingStagingAdaptee {
 						if (transactionPostingStatus) {
 
 							if (service.equalsIgnoreCase("SWIFT")) {
-								// logger.debug("SWIFT");
+								logger.info("SWIFT staging");
 
 								if (operation.equalsIgnoreCase("SwiftOut") || operation.equalsIgnoreCase("SFMSOut")) {
 									// logger.debug("SwiftOut");

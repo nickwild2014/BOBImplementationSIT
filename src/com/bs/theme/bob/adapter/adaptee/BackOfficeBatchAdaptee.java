@@ -99,8 +99,9 @@ public class BackOfficeBatchAdaptee extends ServiceProcessorUtil implements Adap
 
 	public static void main(String a[]) throws Exception {
 		BackOfficeBatchAdaptee bb = new BackOfficeBatchAdaptee();
-		String resp = ThemeBridgeUtil.readFile("C:\\Users\\KXT51472.KBANK\\Desktop\\LimitExposure\\Posting2.xml");
-		bb.getTIResponseFromBankResponse(resp, "SUCCEEDED", "SUCCEEDED");
+		String req = ThemeBridgeUtil.readFile("C:\\Users\\subhash\\Desktop\\TIREquestBackofficeExposure.txt");
+		bb.process(req);
+		//bb.getTIResponseFromBankResponse(resp, "SUCCEEDED", "SUCCEEDED");
 	}
 
 	/**
@@ -360,6 +361,16 @@ public class BackOfficeBatchAdaptee extends ServiceProcessorUtil implements Adap
 				// logger.debug("Online posting generating bank Request");
 				bankPostingRequest = generateBankRequest(postingLegsList);
 			}
+			
+			if (anExposureList != null && anExposureList.size() > 0) {
+				// TODO Exposure adaptee class
+				logger.debug(" ************ Backoffice.Batch exposure calling ************ ");
+				LimitExposureAdaptee anLimitExposureObj = new LimitExposureAdaptee();
+				exposureStatus = anLimitExposureObj.processBankRequestDetails(anExposureList, tiRequest,
+						masterReference, eventReference);
+				logger.debug(" ************ Backoffice.Batch exposure calling ended ************ ");
+			}
+			
 			logger.debug("postingJAXB >>-->>Milestone 005<<--<<");
 		} catch (Exception exp) {
 			logger.error("Exceptions! " + exp.getMessage(), exp);
@@ -425,10 +436,10 @@ public class BackOfficeBatchAdaptee extends ServiceProcessorUtil implements Adap
 			postingLegs.put("forceDebitCredit", aPosting.getExtraData().getFORCDBT());
 			postingLegs.put("lobcode", aPosting.getExtraData().getLOBCOD());
 			// get Particulars
-			String transactionParticulars = BackofficeBatchUtil
-					.getTransChargeParticulars(aPosting.getSPSKCategoryCode());
+			//String transactionParticulars = BackofficeBatchUtil
+				//	.getTransChargeParticulars(aPosting.getSPSKCategoryCode());
+			String transactionParticulars = masterReference+" "+eventReference;
 			postingLegs.put("transactionParticulars", transactionParticulars);
-			// get Posting narrative
 			String postingNarrative1 = "";
 			postingNarrative1 = aPosting.getPostingNarrative1();
 			postingLegs.put("postingNarrative1", postingNarrative1);
@@ -484,15 +495,15 @@ public class BackOfficeBatchAdaptee extends ServiceProcessorUtil implements Adap
 				//xferTrnAddCustomData.append(generateXferTrnAddCustomDataXML(legCount, billRefNum));
 				legCount++;
 			}
-			String forceDebitCredit = "N";
-			String forceDrCrFlag = postingLegList.get(0).get("forceDebitCredit");
-			logger.debug("XML Force DrCr Flag : " + forceDrCrFlag);
-			// TODO
-			forceDrCrFlag = getForceDebit(masterReference, eventReference);
-			logger.debug("DB Force DrCr Flag : " + forceDrCrFlag);
-			if (!forceDrCrFlag.isEmpty() && forceDrCrFlag != null && forceDrCrFlag.equalsIgnoreCase("Y")) {
-				forceDebitCredit = "F";
-			}
+			//String forceDebitCredit = "N";
+//			String forceDrCrFlag = postingLegList.get(0).get("forceDebitCredit");
+//			logger.debug("XML Force DrCr Flag : " + forceDrCrFlag);
+//			// TODO
+//			forceDrCrFlag = getForceDebit(masterReference, eventReference);
+//			logger.debug("DB Force DrCr Flag : " + forceDrCrFlag);
+//			if (!forceDrCrFlag.isEmpty() && forceDrCrFlag != null && forceDrCrFlag.equalsIgnoreCase("Y")) {
+//				forceDebitCredit = "F";
+//			}
 			// logger.debug("BankReqXML Milestone 04");
 			//xferTrnAddCustomData.append("<Debit_Mode_Flg>" + forceDebitCredit + "</Debit_Mode_Flg>");
 			// xferTrnAddCustomData.append("<Debit_Mode_Flg>N</Debit_Mode_Flg>");
@@ -505,8 +516,7 @@ public class BackOfficeBatchAdaptee extends ServiceProcessorUtil implements Adap
 			Reader reader = new TokenReplacingReader(fileValue, resolver);
 			bankRequestXML = reader.toString();
 			reader.close();
-			// logger.debug("BankReqXML Milestone 06 YYY");
-
+			
 			// TODO
 			bankRequestXML = bankRequestXML.replace("&", "&amp;");
 			// logger.debug("BankReqXML Milestone 06 ZZZ");
@@ -613,8 +623,9 @@ public class BackOfficeBatchAdaptee extends ServiceProcessorUtil implements Adap
 			if (postingNarrative1.length() > 50) {
 				postingNarrative1 = postingNarrative1.substring(0, 50);
 			}
-			xferTrnDetail.append("<tranParti>" + postingNarrative1 + "</tranParti>");
-			xferTrnDetail.append("<tranRmks>" + postingLeg.get("lobcode") + "</tranRmks>"); // lob
+			String remarks= "nill";
+			xferTrnDetail.append("<tranParti>" + masterReference+" "+eventReference  + "</tranParti>");
+			xferTrnDetail.append("<tranRmks>" + remarks + "</tranRmks>"); // lob
 //			xferTrnDetail.append("<ValueDt>" + postingLeg.get("valueDate") + "T" + DateTimeUtil.getStringLocalTimeFi()
 //					+ "</ValueDt>");
 //			xferTrnDetail.append("<SerialNum>" + legCount + "</SerialNum>");
@@ -634,34 +645,34 @@ public class BackOfficeBatchAdaptee extends ServiceProcessorUtil implements Adap
 	 * @param eventReference
 	 * @return
 	 */
-	public static String getForceDebit(String masterReference, String eventReference) {
-
-		String forceDrNo = "";
-		ResultSet aResultset = null;
-		Connection aConnection = null;
-		PreparedStatement aPreparedStatement = null;
-		try {
-			aConnection = DatabaseUtility.getTizoneConnection();
-			aPreparedStatement = aConnection.prepareStatement(
-					"SELECT TRIM(EXT.FORCDEBT) AS FORCDEBIT FROM EXTEVENT EXT JOIN BASEEVENT BEV ON BEV.KEY97 = EXT.EVENT "
-							+ " JOIN MASTER MAS ON MAS.KEY97=BEV.MASTER_KEY WHERE trim(MAS.MASTER_REF) = ? AND trim((BEV.REFNO_PFIX || LPAD(BEV.REFNO_SERL, 3, 0)) ) = ? ");
-			aPreparedStatement.setString(1, masterReference);
-			aPreparedStatement.setString(2, eventReference);
-			aResultset = aPreparedStatement.executeQuery();
-			while (aResultset.next()) {
-				forceDrNo = aResultset.getString("FORCDEBIT");
-			}
-
-		} catch (Exception e) {
-			logger.debug("Force Debit Credit Exceptions! " + e.getMessage());
-			e.printStackTrace();
-
-		} finally {
-			DatabaseUtility.surrenderPrepdConnection(aConnection, aPreparedStatement, aResultset);
-
-		}
-		return forceDrNo;
-	}
+//	public static String getForceDebit(String masterReference, String eventReference) {
+//
+//		String forceDrNo = "";
+//		ResultSet aResultset = null;
+//		Connection aConnection = null;
+//		PreparedStatement aPreparedStatement = null;
+//		try {
+//			aConnection = DatabaseUtility.getTizoneConnection();
+//			aPreparedStatement = aConnection.prepareStatement(
+//					"SELECT TRIM(EXT.FORCDEBT) AS FORCDEBIT FROM EXTEVENT EXT JOIN BASEEVENT BEV ON BEV.KEY97 = EXT.EVENT "
+//							+ " JOIN MASTER MAS ON MAS.KEY97=BEV.MASTER_KEY WHERE trim(MAS.MASTER_REF) = ? AND trim((BEV.REFNO_PFIX || LPAD(BEV.REFNO_SERL, 3, 0)) ) = ? ");
+//			aPreparedStatement.setString(1, masterReference);
+//			aPreparedStatement.setString(2, eventReference);
+//			aResultset = aPreparedStatement.executeQuery();
+//			while (aResultset.next()) {
+//				forceDrNo = aResultset.getString("FORCDEBIT");
+//			}
+//
+//		} catch (Exception e) {
+//			logger.debug("Force Debit Credit Exceptions! " + e.getMessage());
+//			e.printStackTrace();
+//
+//		} finally {
+//			DatabaseUtility.surrenderPrepdConnection(aConnection, aPreparedStatement, aResultset);
+//
+//		}
+//		return forceDrNo;
+//	}
 
 	
 	/**

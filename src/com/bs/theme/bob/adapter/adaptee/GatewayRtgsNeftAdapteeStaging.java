@@ -208,21 +208,6 @@ public class GatewayRtgsNeftAdapteeStaging {
 
 	}
 
-	private String getBankResponseFromBankRequest(String bankRequest)
-			throws HttpException, IOException, FinacleServiceException {
-
-		String result = "";
-		try {
-			/******* Finacle http client call *******/
-			result = FinacleHttpClient.postXML(bankRequest);
-
-		} catch (Exception e) {
-			logger.debug("Exception..! " + e.getMessage());
-			e.printStackTrace();
-
-		}
-		return result;
-	}
 	
 	public String pushMessage(String requestMessage, Map<String, String> rtgsNeftMapList) {
 		logger.info("Enter into TCP/IP pushMessage method");
@@ -232,16 +217,6 @@ public class GatewayRtgsNeftAdapteeStaging {
 		DataOutputStream out = null;
 		InputStream in = null;
 		Socket client = null;
-//		String isoMessage = getISOMessage(requestMessage, rtgsNeftMapList);
-//		try {
-//			reposneMessage = getBankResponseFromBankRequest(isoMessage);
-//		} catch (HttpException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		} catch (FinacleServiceException e) {
-//			e.printStackTrace();
-//		}
 		
 		try {
 			byte[] isoMessage = getISOMessage(requestMessage, rtgsNeftMapList);
@@ -291,7 +266,6 @@ public class GatewayRtgsNeftAdapteeStaging {
 			// Create Packager based on XML that contain DE type
 			GenericPackager packager = new GenericPackager("Files/isoFields.xml");
 			// GenericPackager packager = new GenericPackager("Files/basic.xml");
-
 			// Create ISO Message
 			ISOMsg isoMsg = new ISOMsg();
 			isoMsg.setPackager(packager);

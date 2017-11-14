@@ -92,14 +92,36 @@ public class SWIFTSwiftOutAdapteeStaging {
 	public SWIFTSwiftOutAdapteeStaging() {
 	}
 	
-	int port = ThemeBridgeUtil.StringtoInt(ConfigurationUtil.getValueFromKey("SFMS_Port"));
-	String hostname = ConfigurationUtil.getValueFromKey("SFMS_HOSTNAME");
-	String channel = ConfigurationUtil.getValueFromKey("SFMS_Channel");
-	String qManager = ConfigurationUtil.getValueFromKey("SFMS_Manager");
+	public static void main(String args[])
+	{
+//		int port = ThemeBridgeUtil.StringtoInt(ConfigurationUtil.getValueFromKey("SfmsOutMQPort"));
+//		String hostname = ConfigurationUtil.getValueFromKey("SfmsOutMQHostName");
+//		String channel = ConfigurationUtil.getValueFromKey("SfmsOutMQChannelName");
+//		String qManager = ConfigurationUtil.getValueFromKey("SfmsOutMQManagerName");
+//		String outputQName = ConfigurationUtil.getValueFromKey("SfmsOutMQName");
+		
+//		int port = ThemeBridgeUtil.StringtoInt(ConfigurationUtil.getValueFromKey("SwiftOutMQPort"));
+//		String hostname = ConfigurationUtil.getValueFromKey("SwiftOutMQHostName");
+//		String channel = ConfigurationUtil.getValueFromKey("SwiftOutMQChannelName");
+//		String qManager = ConfigurationUtil.getValueFromKey("SwiftOutMQManagerName");
+//		String outputQName = ConfigurationUtil.getValueFromKey("SwiftOutMQName");
+//		
+//		System.out.println("port "+port);
+//		System.out.println("hostname "+hostname);
+//		System.out.println("channel "+channel);
+//		System.out.println("qManager "+qManager);
+//		System.out.println("outputQName "+outputQName);
 
-	public static Boolean writeSFMSMQMessage(String inputMessage,int port,String hostname,String channel,String qManager) {
+		
+//		int port = ThemeBridgeUtil.StringtoInt(ConfigurationUtil.getValueFromKey("SwiftOutMQPort"));
+//		String hostname = ConfigurationUtil.getValueFromKey("SwiftOutMQHostName");
+//		String channel = ConfigurationUtil.getValueFromKey("SwiftOutMQChannelName");
+//		String qManager = ConfigurationUtil.getValueFromKey("SwiftOutMQManagerName");
+//		String outputQName = ConfigurationUtil.getValueFromKey("SwiftOutMQName");
+	}
+		
+	public static Boolean writeMQMessage(String inputMessage,int port,String hostname,String channel,String qManager,String outputQName) {
 		MQQueueManager _queueManager = null;
-
 		// int port = 1415;
 		// String hostname = "10.1.41.41";
 		// String channel = "SFMS.TO.LCBG";
@@ -111,12 +133,8 @@ public class SWIFTSwiftOutAdapteeStaging {
 
 		logger.info("Swift out Queue write process");
 		try {
-
-			
 			// String inputQName = ConfigurationUtil
 			// .getValueFromKey("SFMS_IN_QUEUE");
-			String outputQName = ConfigurationUtil.getValueFromKey("SFMS_OUT_QUEUE");
-
 			logger.info("MQ connect started/////////// hostname\t\t:" + hostname);
 			logger.info("MQ connect started/////////// channel\t\t:" + channel);
 			logger.info("MQ connect started/////////// Port\t\t:" + port);
@@ -381,10 +399,9 @@ public class SWIFTSwiftOutAdapteeStaging {
 				// }
 
 				String billRefNumber = "";
-				billRefNumber = getBillRefNumber(masterReferenceNum, eventReferenceNum);
+				//billRefNumber = getBillRefNumber(masterReferenceNum, eventReferenceNum);
 				String sfmsFlag = SWIFTMessageUtil.checkinSFMSFlag(prdType, subType, eventcode);
-				logger.debug(
-						"SFMSFlag: (" + masterReferenceNum + "(" + masterRef + ")-" + eventRef + ") :- " + sfmsFlag);
+				logger.debug("SFMSFlag: (" + masterReferenceNum + "(" + masterRef + ")-" + eventRef + ") :- " + sfmsFlag);
 
 				if (sfmsFlag.equals("YES") && tranCurrency.equalsIgnoreCase("INR")) {
 					logger.debug(" ************ SWIFT.SFMS process started ************ ");
@@ -404,12 +421,13 @@ public class SWIFTSwiftOutAdapteeStaging {
 					//String sfmsOutMQJNDIName = ConfigurationUtil.getValueFromKey("SfmsOutMQJndiName");
 					//mqueueStatus = MQMessageManager.pushMqMessage(sfmsOutMQJNDIName, sfmsOutMQName, sfmsOutMsg);
 					
-					int port = ThemeBridgeUtil.StringtoInt(ConfigurationUtil.getValueFromKey("SFMS_Port"));
-					String hostname = ConfigurationUtil.getValueFromKey("SFMS_HOSTNAME");
-					String channel = ConfigurationUtil.getValueFromKey("SFMS_Channel");
-					String qManager = ConfigurationUtil.getValueFromKey("SFMS_Manager");
+					int port = ThemeBridgeUtil.StringtoInt(ConfigurationUtil.getValueFromKey("SfmsOutMQPort"));
+					String hostname = ConfigurationUtil.getValueFromKey("SfmsOutMQHostName");
+					String channel = ConfigurationUtil.getValueFromKey("SfmsOutMQChannelName");
+					String qManager = ConfigurationUtil.getValueFromKey("SfmsOutMQManagerName");
+					String outputQName = ConfigurationUtil.getValueFromKey("SfmsOutMQName");
 
-					mqueueStatus = writeSFMSMQMessage(sfmsOutMsg, port, hostname, channel, qManager);
+					mqueueStatus = writeMQMessage(sfmsOutMsg, port, hostname, channel, qManager,outputQName);
 
 					logger.debug("Swiftout(SFMS) QueuePushingStatus : " + mqueueStatus);
 
@@ -446,11 +464,12 @@ public class SWIFTSwiftOutAdapteeStaging {
 //					// encryptSwiftMsg);
 //					mqueueStatus = MQMessageManager.pushMqMessage(swiftOutMQJndiName, swiftOutMQName, formatSwiftMsg);
 					
-					int port = ThemeBridgeUtil.StringtoInt(ConfigurationUtil.getValueFromKey("SWIFT_Port"));
-					String hostname = ConfigurationUtil.getValueFromKey("SWIFT_HOSTNAME");
-					String channel = ConfigurationUtil.getValueFromKey("SWIFT_Channel");
-					String qManager = ConfigurationUtil.getValueFromKey("SWIFT_Manager");
-					mqueueStatus = writeSFMSMQMessage(sfmsOutMsg, port, hostname, channel, qManager);
+					int port = ThemeBridgeUtil.StringtoInt(ConfigurationUtil.getValueFromKey("SwiftOutMQPort"));
+					String hostname = ConfigurationUtil.getValueFromKey("SwiftOutMQHostName");
+					String channel = ConfigurationUtil.getValueFromKey("SwiftOutMQChannelName");
+					String qManager = ConfigurationUtil.getValueFromKey("SwiftOutMQManagerName");
+					String outputQName = ConfigurationUtil.getValueFromKey("SwiftOutMQName");
+					mqueueStatus = writeMQMessage(formatSwiftMsg, port, hostname, channel, qManager,outputQName);
 
 					logger.debug("Swiftout(SWIFT) QueuePushingStatus : " + mqueueStatus);
 					if (swiftAllMessages.isEmpty())
@@ -800,24 +819,5 @@ public class SWIFTSwiftOutAdapteeStaging {
 		return result;
 	}
 
-	public static void main(String a[]) throws Exception {
 
-		// ThemeSwiftParser tsp = new ThemeSwiftParser();
-		// ThemeSwiftModel tsmBeanObj = tsp.parseSwiftMessage("");
-
-		SWIFTSwiftOutAdapteeStaging swiftObj = new SWIFTSwiftOutAdapteeStaging();
-		// logger.debug(swiftObj.getTIResponse(" | FAILED"));
-
-		// String prdType = "IDC";
-		// if (!prdType.equals("IDC") && !prdType.equals("ODC")) {
-		// System.out.println("if " + prdType);
-		// } else {
-		// System.out.println("else " + prdType);
-		// }
-
-		String inputXML = ThemeBridgeUtil.readFile("C:\\Users\\subhash\\Desktop\\SwiftOutTIRequest.txt");
-		System.out.println(inputXML);
-		String resp = swiftObj.process(inputXML);
-
-	}
 }
