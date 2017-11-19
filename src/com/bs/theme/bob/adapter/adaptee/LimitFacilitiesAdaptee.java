@@ -164,7 +164,11 @@ public class LimitFacilitiesAdaptee extends ServiceProcessorUtil implements Adap
 					relatedParty, "", false, "0", errorMsg);
 			logger.debug("finally block completed..!!");
 		}
+		
 		logger.info(" ************ Limit.Facilities adaptee process ended ************ ");
+		
+		//String tiResponseFromPath = ThemeBridgeUtil.readFile("//home//trfinu1//LimitResponse//LimitFacilityRequest.txt");
+		logger.info("tiResponse "+tiResponse);
 		return tiResponse;
 	}
 
@@ -244,7 +248,7 @@ public class LimitFacilitiesAdaptee extends ServiceProcessorUtil implements Adap
 			// customerMneonic = XPathParsing.getValue(requestXML,
 			// LimitFacilitiesXpath.RelatedParty);
 			customerID = XPathParsing.getValue(requestXML,
-					"/ServiceRequest/FacilitiesRequest/FacilityRequestDetails/Customer");
+					"/ServiceRequest/FacilitiesRequest/FacilityRequestDetails/RelatedParty");
 			// String customerType = getCustomerType(customerMneonic);
 
 			logger.debug("Milestone 02 a");
@@ -415,7 +419,7 @@ public class LimitFacilitiesAdaptee extends ServiceProcessorUtil implements Adap
 				String amount = "";
 				if(hashMapList.get("amountValue")!=null)
 				amount = hashMapList.get("amountValue");
-				amount.replace(".", "");
+				amount = amount.replace(".", "");
 				String availableamountStr = getTransactionAmount(amount, "INR");
 				// logger.debug("AvailableStrAmount : " + availableamountStr);
 
@@ -435,25 +439,63 @@ public class LimitFacilitiesAdaptee extends ServiceProcessorUtil implements Adap
 				facilityDetails.append("\n<m:SequenceNumber>" + sequenceId + "</m:SequenceNumber>");
 				facilityDetails.append("\n<m:FacilityCode>" + "" + "</m:FacilityCode>");
 				facilityDetails.append("\n<m:Description>" + "" + "</m:Description>");
-				facilityDetails.append("\n<m:Customer>" + "" + "</m:Customer>");
-				facilityDetails.append("\n<m:StartDate>" +hashMapList.get("ssanctionDate")+ "</m:StartDate>");
+				facilityDetails.append("\n<m:Customer>" + customerID + "</m:Customer>");
+				facilityDetails.append("\n<m:StartDate>" +hashMapList.get("sanctionDate")+ "</m:StartDate>");
 				facilityDetails.append("\n<m:ExpiryDate>" + hashMapList.get("expiryDate") + "</m:ExpiryDate>");
 				facilityDetails.append("\n<m:Currency>" + hashMapList.get("currencyCode") + "</m:Currency>");
 				facilityDetails.append("\n<m:LimitAmount>" + "" + "</m:LimitAmount>");
 				facilityDetails.append("\n<m:ExposureAmount>" + "" + "</m:ExposureAmount>");
-				facilityDetails.append("<m:AvailableAmount>"+hashMapList.get("amountValue")+"</m:AvailableAmount>");
-				
+				//facilityDetails.append("<m:AvailableAmount>"+availableamountStr+"</m:AvailableAmount>");
 				facilityDetails.append("\n<m:LiabilityCurrency>" + "" + "</m:LiabilityCurrency>");
 				facilityDetails.append("\n<m:MultiCurrency>" + "" + "</m:MultiCurrency>");
 				facilityDetails.append("\n<m:AllowableCurrencies>" + "" + "</m:AllowableCurrencies>");
 				facilityDetails.append("\n<m:RelatedParty>" + "" + "</m:RelatedParty>");
 				facilityDetails.append("\n<m:RelatedPartyIdentifier>" + "" + "</m:RelatedPartyIdentifier>");
-				facilityDetails.append("\n<m:DisplayField1>" + hashMapList.get("customerID") + "</m:DisplayField1>");
-				facilityDetails.append("\n<m:DisplayField2>" + hashMapList.get("entityId") + "</m:DisplayField2>");
-				facilityDetails.append("\n<m:DisplayField3>" + hashMapList.get("amountValue") + "</m:DisplayField3>");
-				facilityDetails.append("\n<m:DisplayField4>" + hashMapList.get("currencyCode") + "</m:DisplayField4>");
-				facilityDetails.append("\n<m:DisplayField5>" + hashMapList.get("sanctionDate") + "</m:DisplayField5>");
-				facilityDetails.append("\n<m:DisplayField6>" + hashMapList.get("expiryDate") + "</m:DisplayField6>");
+				
+				String customerID = hashMapList.get("customerID");
+				if(customerID==null || customerID.trim().isEmpty())
+				{
+					customerID="nill";
+				}
+				
+				facilityDetails.append("\n<m:DisplayField1>" + customerID + "</m:DisplayField1>");
+				
+				String entityId = hashMapList.get("entityId");
+				if(entityId==null || entityId.trim().isEmpty())
+				{
+					entityId="nill";
+				}
+				
+				
+				String amountValue = hashMapList.get("amountValue");
+				if(amountValue==null || amountValue.trim().isEmpty())
+				{
+					amountValue="nill";
+				}
+				
+				String currencyCode = hashMapList.get("currencyCode");
+				if(currencyCode==null || currencyCode.trim().isEmpty())
+				{
+					currencyCode="nill";
+				}
+				
+				String sanctionDate = hashMapList.get("sanctionDate");
+				if(sanctionDate==null || sanctionDate.trim().isEmpty())
+				{
+					sanctionDate="nill";
+				}
+				
+				String expiryDate = hashMapList.get("expiryDate");
+				if(expiryDate==null || expiryDate.trim().isEmpty())
+				{
+					expiryDate="nill";
+				}
+				
+				facilityDetails.append("\n<m:DisplayField2>" + entityId + "</m:DisplayField2>");
+				facilityDetails.append("\n<m:DisplayField3>" + amountValue + "</m:DisplayField3>");
+				facilityDetails.append("\n<m:DisplayField4>" + currencyCode + "</m:DisplayField4>");
+				facilityDetails.append("\n<m:DisplayField5>" + sanctionDate + "</m:DisplayField5>");
+				facilityDetails.append("\n<m:DisplayField6>" + expiryDate + "</m:DisplayField6>");
 				facilityDetails.append("\n<m:DisplayField7>" + "" + "</m:DisplayField7>");
 				facilityDetails.append("\n</m:FacilityDetails>");
 				facilityDetails.append("\n");

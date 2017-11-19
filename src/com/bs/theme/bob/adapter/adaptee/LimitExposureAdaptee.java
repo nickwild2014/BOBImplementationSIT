@@ -110,7 +110,7 @@ public class LimitExposureAdaptee {
 		} catch (Exception e) {
 			expoReqStatus = "FAILED";
 			errorMsg = e.getMessage();
-			logger.error("Exceptions! Limit exposure..! " + e.getMessage());
+			logger.error("Exceptions! Limit exposure..! " + e);
 
 		} finally {
 			logger.debug("Exposure status " + expoReqStatus);
@@ -145,12 +145,14 @@ public class LimitExposureAdaptee {
 				while (sourceListItr.hasNext()) {
 					Exposure anExposure = (Exposure) sourceListItr.next();
 
-					if (!anExposure.getFacilityIdentifier().equalsIgnoreCase("*NOFACILITYID*")) {
+					if (anExposure.getFacilityIdentifier()!= null && !anExposure.getFacilityIdentifier().equalsIgnoreCase("*NOFACILITYID*")) {
 						logger.debug("IF Facility ID " + anExposure.getFacilityIdentifier());
 
 							logger.debug("Regular exposure Debit MS02");
 							// expoReqStatus = "PROCESSED";
+							System.out.println(anExposure       );
 							tiResponseXML = exposureLimitReservations(anExposure);
+							logger.info("tiResponseXML "+tiResponseXML);
 							expoReqStatus = XPathParsing.getValue(tiResponseXML,
 									"/ServiceResponse/ResponseHeader/Status");
 
@@ -164,7 +166,7 @@ public class LimitExposureAdaptee {
 				}
 			}
 		} catch (Exception e) {
-			logger.error("Exception!!! " + e.getMessage());
+			logger.error("Exception!!! " + e);
 			e.printStackTrace();
 		}
 		return expoReqStatus;
@@ -229,9 +231,15 @@ public class LimitExposureAdaptee {
 					.getResourceAsStream(RequestResponseTemplate.LIMIT_EXPOSURE_RESERVATIONS_BANK_REQUEST_TEMPLATE);
 			String requestTemplate = ThemeBridgeUtil.readFile(anInputStream);
 
-			String[] parts = facilityIdentifier.split("/");
-			String limitPrefix = parts[0].trim(); // TODO
-			String limitSuffix = parts[1].trim(); // TODO
+			String limitPrefix = "";
+			String limitSuffix = "";
+			if(facilityIdentifier!=null && !facilityIdentifier.trim().isEmpty())
+			{
+				String[] parts = facilityIdentifier.split("/");
+				limitPrefix = parts[0].trim(); // TODO
+				limitSuffix = parts[1].trim(); // TODO
+			}
+			
 
 			long titrxnamountLong = anExposure.getAmount();
 			String titrxnamountStr = String.valueOf(titrxnamountLong);
@@ -318,7 +326,7 @@ public class LimitExposureAdaptee {
 					reversaltiResponse = getTIResponseFromBankResponse(reversalBankResponse);
 					tiResponse = reversaltiResponse;
 					tiResTime = DateTimeUtil.getTimestamp();
-					logger.debug("Limit Exposure Reservations TIResponse :- " + reversaltiResponse);
+					logger.info("Limit Exposure Reservations TIResponse :- " + reversaltiResponse);
 					reservationstiResponseStatus = XPathParsing.getValue(tiResponse,
 							"/ServiceResponse/ResponseHeader/Status");
 					if (reservationstiResponseStatus.equals("SUCCEEDED")) {
@@ -349,6 +357,8 @@ public class LimitExposureAdaptee {
 			}
 
 		} catch (Exception e) {
+			logger.info(e);
+			e.printStackTrace();
 			errorMsg = "Nothing to do for exposure debit leg / Hard Block Reservation not required..!";
 
 		} finally {
@@ -357,7 +367,7 @@ public class LimitExposureAdaptee {
 					reversalBankResponse, tiReqTime, bankReqTime, bankResTime, tiResTime, "", "", narrative1, "", false,
 					"0", errorMsg);
 		}
-		return bankResp;
+		return reversaltiResponse;
 	}
 
 	
@@ -461,6 +471,7 @@ public class LimitExposureAdaptee {
 				}
 			}
 		} catch (Exception ex) {
+			logger.info(ex);
 			logger.error("The Exception is :" + ex.getMessage());
 			ex.printStackTrace();
 			result = true;
@@ -500,7 +511,7 @@ public class LimitExposureAdaptee {
 			}
 
 		} catch (Exception e) {
-			logger.error("Exceptions! while getting Fundliab..! " + e.getMessage());
+			logger.error("Exceptions! while getting Fundliab..! " + e);
 			e.printStackTrace();
 
 		} finally {
@@ -524,7 +535,8 @@ public class LimitExposureAdaptee {
 			result = FinacleHttpClient.postXML(bankRequest);
 
 		} catch (Exception e) {
-			logger.error("Limit ReservationsReversal Finacle exceptions! " + e.getMessage());
+			logger.info(e);
+			logger.error("Limit ReservationsReversal Finacle exceptions! " + e);
 			result = "";
 		}
 		return result;
@@ -572,7 +584,8 @@ public class LimitExposureAdaptee {
 			}
 
 		} catch (Exception e) {
-			logger.error("Exceptions! while getting FACILITYID..! " + e.getMessage());
+			
+			logger.error("Exceptions! while getting FACILITYID..! " + e);
 			e.printStackTrace();
 
 		} finally {
@@ -608,7 +621,7 @@ public class LimitExposureAdaptee {
 			//String exposureStataus = XPathParsing.getValue(responseXML, LimitReservationsXpath.FacilityStatausXpath);
 			//logger.debug("exposureStataus " + exposureStataus);
 
-			errorMessage = getBankResponseErrorMessage(responseXML);
+			//errorMessage = getBankResponseErrorMessage(responseXML);
 
 			Map<String, String> tokens = new HashMap<String, String>();
 			if (hostStatus.equalsIgnoreCase("FAILURE") ) {
@@ -650,7 +663,7 @@ public class LimitExposureAdaptee {
 			// logger.debug("Result tag removed ti response xml : \n" + result);
 
 		} catch (Exception e) {
-			logger.error("BackOfficeExposure Exceptions! " + e.getMessage());
+			logger.error("BackOfficeExposure Exceptions! " + e);
 			e.printStackTrace();
 		}
 		// logger.debug("TIResponse : " + result);
@@ -694,7 +707,7 @@ public class LimitExposureAdaptee {
 			// logger.debug("Result tag removed ti response xml : \n" + result);
 
 		} catch (Exception e) {
-			logger.error("BackOfficeExposure Exceptions! " + e.getMessage());
+			logger.error("BackOfficeExposure Exceptions! " + e);
 			e.printStackTrace();
 		}
 		logger.debug("TIResponse : " + result);
@@ -746,15 +759,15 @@ public class LimitExposureAdaptee {
 			logger.debug("Limit Reservations BankResponse error : " + allerrorMessages);
 
 		} catch (XPathExpressionException e) {
-			logger.error("XPathExpressionException! " + e.getMessage());
+			logger.error("XPathExpressionException! " + e);
 			e.printStackTrace();
 
 		} catch (SAXException e) {
-			logger.error("SAXException! " + e.getMessage());
+			logger.error("SAXException! " + e);
 			e.printStackTrace();
 
 		} catch (IOException e) {
-			logger.error("IOException! " + e.getMessage());
+			logger.error("IOException! " + e);
 			e.printStackTrace();
 		}
 

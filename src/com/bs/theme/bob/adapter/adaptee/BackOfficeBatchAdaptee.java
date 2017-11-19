@@ -99,7 +99,8 @@ public class BackOfficeBatchAdaptee extends ServiceProcessorUtil implements Adap
 
 	public static void main(String a[]) throws Exception {
 		BackOfficeBatchAdaptee bb = new BackOfficeBatchAdaptee();
-		String req = ThemeBridgeUtil.readFile("C:\\Users\\subhash\\Desktop\\TIREquestBackofficeExposure.txt");
+		//String req = ThemeBridgeUtil.readFile("C:\\Users\\subhash\\Downloads\\TIREQUSTBATCH.txt");
+		String req = ThemeBridgeUtil.readFile("P:\\pending\\Batch with limit exposure.txt");
 		bb.process(req);
 		//bb.getTIResponseFromBankResponse(resp, "SUCCEEDED", "SUCCEEDED");
 	}

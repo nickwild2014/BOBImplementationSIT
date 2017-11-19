@@ -47,7 +47,6 @@
 	<classpathentry kind="lib" path="P:/RefLibUat3/jna-4.1.0.jar"/>
 	<classpathentry kind="lib" path="P:/RefLibUat3/jna-platform-4.1.0.jar"/>
 	<classpathentry kind="lib" path="P:/RefLibUat3/log4j-1.2.15.jar"/>
-	<classpathentry kind="lib" path="P:/RefLibUat3/ojdbc6.jar"/>
 	<classpathentry kind="lib" path="P:/RefLibUat3/opencsv-2.4.jar"/>
 	<classpathentry kind="lib" path="P:/RefLibUat3/org.apache.commons.collections.jar"/>
 	<classpathentry kind="lib" path="P:/RefLibUat3/org.json.jar"/>
@@ -63,5 +62,6 @@
 	<classpathentry kind="lib" path="P:/RefLibUat3/super-csv-2.2.0.jar"/>
 	<classpathentry kind="lib" path="P:/RefLibUat3/ThemeSwiftParser.jar"/>
 	<classpathentry kind="lib" path="P:/RefLibUat3/jpos-1.9.0.jar"/>
+	<classpathentry kind="lib" path="P:/RefLibUat3/ojdbc7.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

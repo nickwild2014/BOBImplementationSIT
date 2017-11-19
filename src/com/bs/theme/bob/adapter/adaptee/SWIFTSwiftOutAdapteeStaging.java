@@ -94,7 +94,7 @@ public class SWIFTSwiftOutAdapteeStaging {
 	
 	public static void main(String args[])
 	{
-//		int port = ThemeBridgeUtil.StringtoInt(ConfigurationUtil.getValueFromKey("SfmsOutMQPort"));
+		int port = ThemeBridgeUtil.StringtoInt(ConfigurationUtil.getValueFromKey("SfmsOutMQPort"));
 //		String hostname = ConfigurationUtil.getValueFromKey("SfmsOutMQHostName");
 //		String channel = ConfigurationUtil.getValueFromKey("SfmsOutMQChannelName");
 //		String qManager = ConfigurationUtil.getValueFromKey("SfmsOutMQManagerName");
@@ -106,7 +106,7 @@ public class SWIFTSwiftOutAdapteeStaging {
 //		String qManager = ConfigurationUtil.getValueFromKey("SwiftOutMQManagerName");
 //		String outputQName = ConfigurationUtil.getValueFromKey("SwiftOutMQName");
 //		
-//		System.out.println("port "+port);
+		System.out.println("port "+port);
 //		System.out.println("hostname "+hostname);
 //		System.out.println("channel "+channel);
 //		System.out.println("qManager "+qManager);

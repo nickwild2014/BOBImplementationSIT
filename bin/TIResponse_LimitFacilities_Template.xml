@@ -1,5 +1,6 @@
-<?xml version="1.0" standalone="yes"?>
-<ServiceResponse xmlns:m='urn:messages.service.ti.apps.tiplus2.misys.com' xmlns='urn:control.services.tiplus2.misys.com' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
+<?xml version="1.0" encoding="UTF-8"?>
+<ServiceResponse xmlns="urn:control.services.tiplus2.misys.com"
+	xmlns:m="urn:messages.service.ti.apps.tiplus2.misys.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<ResponseHeader>
 		<Service>Limit</Service>
 		<Operation>Facilities</Operation>
